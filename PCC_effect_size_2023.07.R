@@ -1,152 +1,156 @@
+install.packages("plyr")
+library(Rtools)
+library(readr)
+library(plyr)
+library(dplyr)
+library(funModeling)
+
+####### FARMER CHARACTERISTICS -------
+##### Socio-demographic ------
+#"hh age"
+#"hh gender"
+#"hh education"
+#"h size"
+
+## Household head Age (years)----
+PCC_hh_age<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_hh_age.csv")%>%
+  filter(factor_metric_unit == "hh age (years)")
+
+str(PCC_hh_age)
+sort(unique(PCC_hh_age$factor_metric_unit))
+length(sort(unique(PCC_hh_age$id))) # Number of articles 54
+
+## Household head Gender (1= male, 0= female)----
+PCC_hh_gender<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_hh_gender.csv")%>%
+  filter(factor_metric_unit == "hh gender (1= male, 0= female)")
+
+str(PCC_hh_gender)
+sort(unique(PCC_hh_gender$factor_metric_unit))
+length(sort(unique(PCC_hh_gender$id))) # Number of articles 48
+
+## Household head Education (years) ---- 
+PCC_hh_education<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_hh_education.csv")%>%
+  filter(factor_metric_unit == "hh education (years)")
+
+str(PCC_hh_education)
+sort(unique(PCC_hh_education$factor_metric_unit))
+length(sort(unique(PCC_hh_education$id))) # Number of articles 32
+
+## Household size (number of people) ----
+PCC_h_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_h_size.csv")%>%
+  filter(factor_metric_unit == "h size (number of people)")
+
+str(PCC_h_size)
+sort(unique(PCC_h_size$factor_metric_unit))
+length(sort(unique(PCC_h_size$id))) # Number of articles 37
+
+####### FARM CHARACTERISTICS -----
+##### Biophysical ------
+#"farm size"
+## Farm size (ha)----
+PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_farm_size.csv")%>%
+  filter(factor_metric_unit == "farm size (ha)")
+
+str(PCC_farm_size)
+sort(unique(PCC_farm_size$factor_metric_unit))
+length(sort(unique(PCC_farm_size$id))) # Number of articles 47
+
+####### CONTEXT CHARACTERISTICS -----
+##### Physical capital ------
+#"distance to market" AND "distance to input market"
+#"distance to road"
+
+## Distance to market AND Distance to input market (Km) ----
+PCC_distance_market<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_distance_market.csv")%>%
+  mutate(variance_value = as.character(variance_value))%>%
+  filter(factor_metric_unit == "distance to market (km)")
+
+str(PCC_distance_market)
+sort(unique(PCC_distance_market$factor_metric_unit))
+length(sort(unique(PCC_distance_market$id))) # Number of articles 47
 
 
-#### ---- Filter the Adoption (1= yes, 0= no) papers ----
-adoption_yes_no<- data%>%
-  filter(y_metric_recla=="diversity adoption (1=yes, 0=no)")%>%
-  mutate(coefficient_num= as.numeric(coefficient),
-         variance_value= as.numeric(variance_value),
-         standard_error= as.numeric(standard_error),
-         z_t_value= as.numeric(z_t_value),
-         n_predictors= as.numeric(n_predictors),
-         n_samples= as.numeric(n_samples),
-         country = as.character(country))
+#Combine all PCC data for effect size calculation
+#1- "hh age"
+#2- "hh gender"
+#3- "hh education"
+#4- "h size"
+#5- "farm size"
+#6- "distance to market" AND "distance to input market"
 
-adoption_yes_no$variance_value<- ifelse(adoption_yes_no$variance_metric %in% "p value" &
-                                          is.na(adoption_yes_no$variance_value) ,0.9,adoption_yes_no$variance_value)
+PCC_data<- bind_rows(PCC_hh_age, 
+                     PCC_hh_gender,
+                     PCC_hh_education,
+                     PCC_h_size,
+                     PCC_farm_size,
+                     PCC_distance_market)
 
-length(sort(unique(adoption_yes_no$id))) # Number of articles79
-
-### Pre-processing
-adoption_yes_no_proc<- adoption%>%
-  dplyr::select(id,model_id,intervention_recla,effect_size_type,x_metric_recla, x_metric_unit,
-                model_analysis_raw,model_method,coefficient_type, coefficient, 
-                coefficient_num,variance_metric,variance_value,z_t_value,n_predictors,
-                n_samples)
-filter(x_metric_recla== "hh age")
-
-sort(unique(adoption_yes_no_proc$effect_size_type))
-length(sort(unique(adoption_yes_no_proc$id))) # Number of articles
-sort(unique(adoption_yes_no_proc$model_method))
-table(adoption_yes_no_proc$model_analysis_raw, adoption_yes_no_proc$model_method)
-
-sort(unique(adoption_yes_no_proc$x_metric_unit))
-
-## Household head Gender ----
-# Gender binary "1= female, 0= male" AND "1= male, 2= female" TO "1= male, 0= female"
-adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_unit %in% c("1= female, 0= male", "1= male, 2= female")] <- 
-  adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_unit %in% c("1= female, 0= male", "1= male, 2= female")] * -1
-
-adoption_yes_no_proc$x_metric_unit_recla[adoption_yes_no_proc$x_metric_unit %in% c("1= male, 0= female","1= female, 0= male", "1= male, 2= female")] <- "1= male, 0= female"
-
-adoption_yes_no_proc$factor[adoption_yes_no_proc$x_metric_unit_recla %in% c("1= male, 0= female")] <- "Gender (1= Male, 0= Female)"
-
-## Household head Age ----
-adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_recla %in% "hh age" &
-                                       adoption_yes_no_proc$x_metric_unit %in% "years * (10^-2)"] <- 
-  adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_recla %in% "hh age" &
-                                         adoption_yes_no_proc$x_metric_unit %in% "years * (10^-2)"] * 10^-2
-
-adoption_yes_no_proc$variance_value[adoption_yes_no_proc$x_metric_recla %in% "hh age" &
-                                      adoption_yes_no_proc$x_metric_unit %in% "years * (10^-2)"&
-                                      adoption_yes_no_proc$variance_metric %in% "standard error"] <- 
-  adoption_yes_no_proc$variance_value[adoption_yes_no_proc$x_metric_recla %in% "hh age" &
-                                        adoption_yes_no_proc$x_metric_unit %in% "years * (10^-2)"&
-                                        adoption_yes_no_proc$variance_metric %in% "standard error"] * 10^-2
-
-adoption_yes_no_proc$x_metric_unit_recla[adoption_yes_no_proc$x_metric_recla %in% "hh age" &
-                                           adoption_yes_no_proc$x_metric_unit %in% c("years * (10^-2)","years")] <- "years"
-
-adoption_yes_no_proc$factor[adoption_yes_no_proc$x_metric_recla %in% "hh age" &
-                              adoption_yes_no_proc$x_metric_unit_recla %in% "years"] <- "hh age (years)"
-
-## Farm size ----
-# Farm size continuous "ktha (30 ktha=1ha)" to  "ha"
-adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_recla %in% "farm size" & adoption_yes_no_proc$x_metric_unit %in% "ktha (30 ktha=1ha)"] <- 
-  adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_recla %in% "farm size" &adoption_yes_no_proc$x_metric_unit %in% "ktha (30 ktha=1ha)"]/30
-
-adoption_yes_no_proc$variance_value[adoption_yes_no_proc$x_metric_recla %in% "farm size" & 
-                                      adoption_yes_no_proc$x_metric_unit %in% "ktha (30 ktha=1ha)"&
-                                      adoption_yes_no_proc$variance_metric %in% "standard error"] <- 
-  adoption_yes_no_proc$variance_value[adoption_yes_no_proc$x_metric_recla %in% "farm size" &adoption_yes_no_proc$x_metric_unit %in% "ktha (30 ktha=1ha)"&
-                                        adoption_yes_no_proc$variance_metric %in% "standard error"]/30
-
-adoption_yes_no_proc$x_metric_unit_recla[adoption_yes_no_proc$x_metric_recla %in% "farm size" & adoption_yes_no_proc$x_metric_unit %in% "ktha (30 ktha=1ha)"] <- "ha"
-
-# Farm size continuous "acres" to  ha
-adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_recla %in% "farm size" & adoption_yes_no_proc$x_metric_unit %in% "acres"] <- 
-  adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_recla %in% "farm size" & adoption_yes_no_proc$x_metric_unit %in% "acres"]*0.404686
-
-adoption_yes_no_proc$variance_value[adoption_yes_no_proc$x_metric_recla %in% "farm size" & 
-                                      adoption_yes_no_proc$x_metric_unit %in% "acres" &
-                                      adoption_yes_no_proc$variance_metric %in% "standard error"] <- 
-  adoption_yes_no_proc$variance_value[adoption_yes_no_proc$x_metric_recla %in% "farm size" & 
-                                        adoption_yes_no_proc$x_metric_unit %in% "acres"&
-                                        adoption_yes_no_proc$variance_metric %in% "standard error"]*0.404686
-
-adoption_yes_no_proc$x_metric_unit_recla[adoption_yes_no_proc$x_metric_recla %in% "farm size" &adoption_yes_no_proc$x_metric_unit %in% "acres"] <- "ha"
-
-# Farm size continuous "rai (1 rai = 0.16 ha)" to  ha
-adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_recla %in% "farm size" & adoption_yes_no_proc$x_metric_unit %in% "rai (1 rai = 0.16 ha)"] <- 
-  adoption_yes_no_proc$coefficient_num[adoption_yes_no_proc$x_metric_recla %in% "farm size" &adoption_yes_no_proc$x_metric_unit %in% "rai (1 rai = 0.16 ha)"]*0.16
-
-adoption_yes_no_proc$variance_value[adoption_yes_no_proc$x_metric_recla %in% "farm size" & 
-                                      adoption_yes_no_proc$x_metric_unit %in% "rai (1 rai = 0.16 ha)" &
-                                      adoption_yes_no_proc$variance_metric %in% "standard error"] <- 
-  adoption_yes_no_proc$variance_value[adoption_yes_no_proc$x_metric_recla %in% "farm size" &
-                                        adoption_yes_no_proc$x_metric_unit %in% "rai (1 rai = 0.16 ha)"&
-                                        adoption_yes_no_proc$variance_metric %in% "standard error"]*0.16
-
-adoption_yes_no_proc$x_metric_unit_recla[adoption_yes_no_proc$x_metric_recla %in% "farm size" & adoption_yes_no_proc$x_metric_unit %in% "rai (1 rai = 0.16 ha)"] <- "ha"
-
-adoption_yes_no_proc$x_metric_unit_recla[adoption_yes_no_proc$x_metric_recla %in% "farm size" & 
-                                           adoption_yes_no_proc$x_metric_unit %in% "ha"] <- "ha"
-adoption_yes_no_proc$factor[adoption_yes_no_proc$x_metric_recla %in% "farm size" & 
-                              adoption_yes_no_proc$x_metric_unit_recla %in% "ha"] <- "Farm size (ha)"
+length(sort(unique(PCC_data$id))) # Number of articles 75
+names(PCC_data)
+sort(unique(PCC_data$effect_size_type))
+sort(unique(PCC_data$y_metric_recla))
+table(PCC_data$y_metric_recla)
+sort(unique(PCC_data$model_method))
+table(PCC_data$model_analysis_raw, PCC_data$model_method)
 
 
 ### Filter articles for meta-analysis ----
-adoption_yes_no_proc$coefficient_type[adoption_yes_no_proc$coefficient_type %in% "coefficient value"] <- "B"
-adoption_yes_no_proc$coefficient_type[adoption_yes_no_proc$coefficient_type %in% "marginal effect"] <- "ME"
-adoption_yes_no_proc$coefficient_type[adoption_yes_no_proc$coefficient_type %in% c("odds ratio")] <- "OD"
+sort(unique(PCC_data$coefficient_type))
+
+PCC_data$coefficient_type[PCC_data$coefficient_type %in% "coefficient value"] <- "B"
+PCC_data$coefficient_type[PCC_data$coefficient_type %in% "marginal effect"] <- "ME"
+PCC_data$coefficient_type[PCC_data$coefficient_type %in% c("odds ratio")] <- "OD"
+sort(unique(PCC_data$coefficient_type))
+
+sort(unique(PCC_data$variance_metric))
+PCC_data$variance_metric[PCC_data$variance_metric %in% c("standard error", "robust standard error")] <- "SE"
+PCC_data$variance_metric[PCC_data$variance_metric %in% c("t value", "t ratio")] <- "T"
+PCC_data$variance_metric[PCC_data$variance_metric %in% c("z value")] <- "Z"
+PCC_data$variance_metric[PCC_data$variance_metric %in% c("p value")] <- "P"
+sort(unique(PCC_data$variance_metric))
+
+sort(unique(PCC_data$model_method))
+
+PCC_data<- PCC_data%>%
+  mutate(model_coefficient_variance_type= paste(model_method, coefficient_type, variance_metric,sep = "_"))
+
+# Replace p == NA for 0.9
+PCC_data$variance_value_num<- ifelse(PCC_data$variance_metric %in% "P" &
+                                       is.na(PCC_data$variance_value_num) ,0.9,PCC_data$variance_value_num)
+
+PCC_data$variance_value_num<- as.numeric(PCC_data$variance_value_num)
+
+#Replace SE == 0 for 0.0001
+PCC_data$variance_value_num<- ifelse(PCC_data$variance_metric %in% "SE" &
+                                       PCC_data$variance_value_num %in% 0 ,0.0001,PCC_data$variance_value_num)
 
 
-adoption_yes_no_proc$variance_metric[adoption_yes_no_proc$variance_metric %in% c("standard error", "robust standard error")] <- "SE"
-adoption_yes_no_proc$variance_metric[adoption_yes_no_proc$variance_metric %in% c("t value", "t ratio")] <- "T"
-adoption_yes_no_proc$variance_metric[adoption_yes_no_proc$variance_metric %in% c("z value")] <- "Z"
-adoption_yes_no_proc$variance_metric[adoption_yes_no_proc$variance_metric %in% c("p value")] <- "P"
-
-partial_correlation<- adoption_yes_no_proc%>%filter(!is.na(factor))%>%
-  mutate(factor_level= paste(coefficient_type, variance_metric,sep = "_"))
+names(PCC_data)
 
 ### Calculate t value or z value ----
+table(PCC_data$model_coefficient_variance_type)
+sort(unique(PCC_data$model_coefficient_variance_type))
+sort(unique(PCC_data$model_method))
+table(PCC_data$coefficient_variance_type,PCC_data$model_method )
 
-length(sort(unique(partial_correlation$id))) # Number of articles
-table(partial_correlation$factor_level)
-sort(unique(partial_correlation$factor_level))
-sort(unique(partial_correlation$model_method))
-table(partial_correlation$factor_level,partial_correlation$model_method )
-
-# factor_level == "logit_coefficient value_t value", "logit_coefficient value_z value", "probit_coefficient value_t ratio",
-# "tobit_coefficient value_t value"                                        
-
-# model_method == ANY
-# factor_level == c("B_SE")
+# model_coefficient_variance_type == "instrumental variables (IV)_B_SE", "logit_B_SE", "na_B_SE", "other_B_SE","truncated_B_SE","probit_B_SE"
+# coefficient_variance_type == c("B_SE")
 # z= B/SE, t= B/SE
 t_z_B_SE <- function (b, se) {  
   result<- (b/se)
   return(result)
 }
 
-# model_method == c("probit", "logit")
-# factor_level == c("ME_SE")
-# z= B/SE, t= B/SE
-t_z_ME_SE <- function (me, se) {  
-  result<- (me/se)
-  return(result)
-}
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in% c("instrumental variables (IV)_B_SE", 
+                                                                         "logit_B_SE", "na_B_SE", "other_B_SE","truncated_B_SE", "probit_B_SE")] <-  
+  t_z_B_SE(PCC_data$coefficient_num[PCC_data$model_coefficient_variance_type %in% c("instrumental variables (IV)_B_SE", 
+                                                                                    "logit_B_SE", "na_B_SE", "other_B_SE","truncated_B_SE", "probit_B_SE")],
+           PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in% c("instrumental variables (IV)_B_SE", 
+                                                                                       "logit_B_SE", "na_B_SE", "other_B_SE","truncated_B_SE", "probit_B_SE")])
 
+# model_coefficient_variance_type == "probit_B_P", "logit_B_P", "logit_ME_P"
 # model_method == c("probit", "logit")
-# factor_level == c("B_P", ME_P)
+# coefficient_variance_type == c("B_P", ME_P)
 # coefficient_num > 0 
 # CHECK: Ref available: Kleinbaum, D. G., & Klein, M. (2010). Logistic regression: a self-learning text (3rd ed.). Springer Science & Business Media.
 # SE = B/z; z=  Φ^−1(1-p/2) ∗ sign(B)
@@ -155,24 +159,66 @@ t_z_probit_logit_B_P <- function (p) {
   return(result)
 }
 
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P","logit_ME_P") & 
+                           PCC_data$coefficient_num > 0 ] <- 
+  t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P","logit_ME_P") &
+                                                     PCC_data$coefficient_num > 0 ])
+
+# model_coefficient_variance_type == probit_B_P, logit_B_P, logit_ME_P
 # model_method == c("probit", "logit")
-# factor_level == "B_P"
+# coefficient_variance_type == c("B_P", ME_P)
 # coefficient_num < 0
 # SE = B/z; z=  Φ^−1(p/2) ∗ sign(B)
 t_z_probit_logit_B_P_2 <- function (p) {  
   result<- (qnorm(p/2))
   return(result)
 }
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P","logit_ME_P") & 
+                           PCC_data$coefficient_num < 0 ] <- 
+  t_z_probit_logit_B_P_2(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P","logit_ME_P") &
+                                                       PCC_data$coefficient_num < 0 ])
 
-# model_method == "non-parametric correlation coefﬁcient of Phi"
-# variance_metric == "B_P"
-# "Nonparametric Statistical Methods" by Myles Hollander and Douglas A. Wolfe (3rd edition, 2013)
-# CHECK: Ref available: SE = sqrt((1 - B^2) / (n - 1)); z = B/SE
-t_z_npc_phi_B_P <- function (b, n) {  
-  result<- b/(sqrt((1 - b^2) / (n - 1)))
+
+# model_coefficient_variance_type == "logit_B_T", "logit_B_Z", "other_B_T","probit_B_T", "tobit_B_T"
+# model_method == ANY
+# coefficient_variance_type == c("B_T", "B_Z")
+# t_z= t OR z
+t_z_ANY <- function (t_z) {  
+  result<- t_z
   return(result)
 }
 
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("logit_B_T", "logit_B_Z", "other_B_T","probit_B_T", "tobit_B_T")] <- 
+  t_z_ANY(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("logit_B_T", "logit_B_Z", "other_B_T","probit_B_T", "tobit_B_T")])
+
+
+
+
+
+
+
+
+
+
+PCC_data<- PCC_data%>%
+  select("id", "model_id","main_crop","intervention_recla","intervention_recla_detail_1",
+         "intervention_recla_detail_2","intervention_recla_detail_3","y_metric_recla",
+         "effect_size_type","x_metric_recla","x_metric_unit","model_analysis_raw","country",
+         "factor", "x_metric_unit_recla", "factor_metric_unit","model_method","coefficient_type",
+         "coefficient", "coefficient_num", "variance_metric","variance_value","variance_value_num","p_value","p_value_num",                                                   
+         "model_coefficient_variance_type", 
+         "z_t_value", "z_t_value_num","z_t_value_recal",
+         "n_predictors","df_original","n_predictors_num","n_samples","n_samples_num")
+
+
+
+
+
+
+
+
+
+# model_coefficient_variance_type == logit_ME_P
 
 # model_method == "logit"
 # variance_metric == "ME_P"
@@ -194,16 +240,7 @@ partial_correlation$z_t_value_recal[partial_correlation$model_method %in% c("pro
 
 sort(unique(partial_correlation$factor_level))
 
-# model_method == c("probit", "logit")
-# factor_level == c("B_P", "ME_P")
-# coefficient_num > 0 
-# z=  Φ^−1(1-p/2) ∗ sign(B)
-partial_correlation$z_t_value_recal[partial_correlation$model_method %in%  c("probit", "logit") & 
-                                      partial_correlation$factor_level %in% c("B_P","ME_P") &
-                                      partial_correlation$coefficient_num > 0 ] <- 
-  t_z_probit_logit_B_P(partial_correlation$variance_value[partial_correlation$model_method %in%  c("probit", "logit") & 
-                                                            partial_correlation$factor_level %in% c("B_P","ME_P") &
-                                                            partial_correlation$coefficient_num > 0 ])
+
 
 # model_method == c("probit", "logit")
 # factor_level == "B_P"
@@ -583,7 +620,7 @@ axis_coords <- function(n_axis){
 }
 
 step_2 <- step_1 + geom_line(data = axis_coords(ncol(p_data) - 1), 
-                              aes(x, y, group = id), alpha = 0.3)
+                             aes(x, y, group = id), alpha = 0.3)
 step_2
 
 text_data <- p_data %>%
@@ -642,6 +679,18 @@ legend.title =element_text(color="black",size=12, family = "sans",face="bold",
                            margin = margin(t = 0, r = 5, b = 0, l = 0)),
 plot.margin = margin(1,1,1.5,1.2, "cm"))
 step_4
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
