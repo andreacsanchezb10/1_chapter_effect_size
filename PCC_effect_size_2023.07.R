@@ -85,7 +85,7 @@ PCC_data<- bind_rows(PCC_hh_age,
                      PCC_farm_size,
                      PCC_distance_market)
 
-length(sort(unique(PCC_data$id))) # Number of articles 75
+length(sort(unique(PCC_data$id))) # Number of articles 74
 names(PCC_data)
 sort(unique(PCC_data$effect_size_type))
 sort(unique(PCC_data$y_metric_recla))
@@ -112,7 +112,8 @@ sort(unique(PCC_data$variance_metric))
 sort(unique(PCC_data$model_method))
 
 PCC_data<- PCC_data%>%
-  mutate(model_coefficient_variance_type= paste(model_method, coefficient_type, variance_metric,sep = "_"))
+  mutate(coefficient_variance_type= paste(coefficient_type, variance_metric,sep = "_"),
+         model_coefficient_variance_type= paste(model_method, coefficient_type, variance_metric,sep = "_"))
 
 # Replace p == NA for 0.9
 PCC_data$variance_value_num<- ifelse(PCC_data$variance_metric %in% "P" &
@@ -123,17 +124,15 @@ PCC_data$variance_value_num<- as.numeric(PCC_data$variance_value_num)
 #Replace SE == 0 for 0.0001
 PCC_data$variance_value_num<- ifelse(PCC_data$variance_metric %in% "SE" &
                                        PCC_data$variance_value_num %in% 0 ,0.0001,PCC_data$variance_value_num)
-
-
 names(PCC_data)
 
 ### Calculate t value or z value ----
 table(PCC_data$model_coefficient_variance_type)
 sort(unique(PCC_data$model_coefficient_variance_type))
+sort(unique(PCC_data$coefficient_variance_type))
 sort(unique(PCC_data$model_method))
 table(PCC_data$coefficient_variance_type,PCC_data$model_method )
 
-# model_coefficient_variance_type == "instrumental variables (IV)_B_SE", "logit_B_SE", "na_B_SE", "other_B_SE","truncated_B_SE","probit_B_SE"
 # coefficient_variance_type == c("B_SE")
 # z= B/SE, t= B/SE
 t_z_B_SE <- function (b, se) {  
@@ -141,15 +140,11 @@ t_z_B_SE <- function (b, se) {
   return(result)
 }
 
-PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in% c("instrumental variables (IV)_B_SE", 
-                                                                         "logit_B_SE", "na_B_SE", "other_B_SE","truncated_B_SE", "probit_B_SE")] <-  
-  t_z_B_SE(PCC_data$coefficient_num[PCC_data$model_coefficient_variance_type %in% c("instrumental variables (IV)_B_SE", 
-                                                                                    "logit_B_SE", "na_B_SE", "other_B_SE","truncated_B_SE", "probit_B_SE")],
-           PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in% c("instrumental variables (IV)_B_SE", 
-                                                                                       "logit_B_SE", "na_B_SE", "other_B_SE","truncated_B_SE", "probit_B_SE")])
+PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in% c("B_SE")] <-  
+  t_z_B_SE(PCC_data$coefficient_num[PCC_data$coefficient_variance_type %in% c("B_SE")],
+           PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in% c("B_SE")])
 
-# model_coefficient_variance_type == "probit_B_P", "logit_B_P", "logit_ME_P"
-# model_method == c("probit", "logit")
+# model_coefficient_variance_type == "probit_B_P", "logit_B_P"
 # coefficient_variance_type == c("B_P", ME_P)
 # coefficient_num > 0 
 # CHECK: Ref available: Kleinbaum, D. G., & Klein, M. (2010). Logistic regression: a self-learning text (3rd ed.). Springer Science & Business Media.
@@ -159,7 +154,7 @@ t_z_probit_logit_B_P <- function (p) {
   return(result)
 }
 
-PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P","logit_ME_P") & 
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") & 
                            PCC_data$coefficient_num > 0 ] <- 
   t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P","logit_ME_P") &
                                                      PCC_data$coefficient_num > 0 ])
