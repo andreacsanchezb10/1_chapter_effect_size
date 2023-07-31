@@ -159,7 +159,7 @@ PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probi
   t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") &
                                                      PCC_data$coefficient_num > 0 ])
 
-# model_coefficient_variance_type == probit_B_P, logit_B_P
+# model_coefficient_variance_type == "probit_B_P", "logit_B_P"
 # model_method == c("probit", "logit")
 # coefficient_variance_type == c("B_P", ME_P)
 # coefficient_num < 0
@@ -183,6 +183,14 @@ t_z_ANY <- function (t_z) {
 
 PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z")] <- 
   t_z_ANY(PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z")])
+
+
+# model_coefficient_variance_type == "tobit_B_P"
+install.packages("PEIP")
+library("PEIP")
+
+tinv(0.4, 2)
+
 
 prueba<-PCC_data%>%
   filter(is.na(z_t_value_recal))
