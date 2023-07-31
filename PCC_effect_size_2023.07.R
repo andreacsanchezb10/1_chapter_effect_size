@@ -156,10 +156,10 @@ t_z_probit_logit_B_P <- function (p) {
 
 PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") & 
                            PCC_data$coefficient_num > 0 ] <- 
-  t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P","logit_ME_P") &
+  t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") &
                                                      PCC_data$coefficient_num > 0 ])
 
-# model_coefficient_variance_type == probit_B_P, logit_B_P, logit_ME_P
+# model_coefficient_variance_type == probit_B_P, logit_B_P
 # model_method == c("probit", "logit")
 # coefficient_variance_type == c("B_P", ME_P)
 # coefficient_num < 0
@@ -168,13 +168,12 @@ t_z_probit_logit_B_P_2 <- function (p) {
   result<- (qnorm(p/2))
   return(result)
 }
-PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P","logit_ME_P") & 
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") & 
                            PCC_data$coefficient_num < 0 ] <- 
-  t_z_probit_logit_B_P_2(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P","logit_ME_P") &
+  t_z_probit_logit_B_P_2(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") &
                                                        PCC_data$coefficient_num < 0 ])
 
 
-# model_coefficient_variance_type == "logit_B_T", "logit_B_Z", "other_B_T","probit_B_T", "tobit_B_T"
 # model_method == ANY
 # coefficient_variance_type == c("B_T", "B_Z")
 # t_z= t OR z
@@ -183,8 +182,8 @@ t_z_ANY <- function (t_z) {
   return(result)
 }
 
-PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("logit_B_T", "logit_B_Z", "other_B_T","probit_B_T", "tobit_B_T")] <- 
-  t_z_ANY(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("logit_B_T", "logit_B_Z", "other_B_T","probit_B_T", "tobit_B_T")])
+PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z")] <- 
+  t_z_ANY(PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z")])
 
 
 
