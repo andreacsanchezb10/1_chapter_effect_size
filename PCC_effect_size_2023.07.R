@@ -121,7 +121,7 @@ PCC_data$variance_value_num<- ifelse(PCC_data$variance_metric %in% "P" &
 
 PCC_data$variance_value_num<- as.numeric(PCC_data$variance_value_num)
 
-#Replace SE == 0 for 0.0001
+# Replace SE == 0 for 0.0001
 PCC_data$variance_value_num<- ifelse(PCC_data$variance_metric %in% "SE" &
                                        PCC_data$variance_value_num %in% 0 ,0.0001,PCC_data$variance_value_num)
 names(PCC_data)
@@ -133,16 +133,16 @@ sort(unique(PCC_data$coefficient_variance_type))
 sort(unique(PCC_data$model_method))
 table(PCC_data$coefficient_variance_type,PCC_data$model_method )
 
-# coefficient_variance_type == c("B_SE")
+# coefficient_variance_type == c("B_SE", "ME_SE")
 # z= B/SE, t= B/SE
 t_z_B_SE <- function (b, se) {  
   result<- (b/se)
   return(result)
 }
 
-PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in% c("B_SE")] <-  
-  t_z_B_SE(PCC_data$coefficient_num[PCC_data$coefficient_variance_type %in% c("B_SE")],
-           PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in% c("B_SE")])
+PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in% c("B_SE","ME_SE")] <-  
+  t_z_B_SE(PCC_data$coefficient_num[PCC_data$coefficient_variance_type %in% c("B_SE","ME_SE")],
+           PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in% c("B_SE","ME_SE")])
 
 # model_coefficient_variance_type == "probit_B_P", "logit_B_P"
 # coefficient_variance_type == c("B_P", ME_P)
@@ -159,7 +159,7 @@ PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probi
   t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") &
                                                      PCC_data$coefficient_num > 0 ])
 
-# model_coefficient_variance_type == "probit_B_P", "logit_B_P"
+# model_coefficient_variance_type == probit_B_P, logit_B_P
 # model_method == c("probit", "logit")
 # coefficient_variance_type == c("B_P", ME_P)
 # coefficient_num < 0
@@ -173,6 +173,21 @@ PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probi
   t_z_probit_logit_B_P_2(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") &
                                                        PCC_data$coefficient_num < 0 ])
 
+
+# model_coefficient_variance_type == "tobit_B_P"
+# coefficient_variance_type == c("B_P")
+# t_z= t = Ft^−1 (p/2, df) ∗ sign(b)
+library("PEIP")
+t_z_tobit_B_P <- function (p,n,k) {  
+  result<- tinv(p, (n-k-1))
+  return(result)
+}
+
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")] <- 
+  t_z_tobit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")],
+                PCC_data$n_samples_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")],
+                PCC_data$n_predictors_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")])
+
 # model_method == ANY
 # coefficient_variance_type == c("B_T", "B_Z")
 # t_z= t OR z
@@ -185,17 +200,15 @@ PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z"
   t_z_ANY(PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z")])
 
 
-# model_coefficient_variance_type == "tobit_B_P"
-install.packages("PEIP")
-library("PEIP")
 
-tinv(0.4, 2)
+
+
 
 
 prueba<-PCC_data%>%
   filter(is.na(z_t_value_recal))
 
-
+sort(unique(prueba$model_coefficient_variance_type))
 
 
 
