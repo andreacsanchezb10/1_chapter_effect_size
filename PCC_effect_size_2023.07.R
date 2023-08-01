@@ -77,7 +77,6 @@ length(sort(unique(PCC_distance_market$id))) # Number of articles 47
 #4- "h size"
 #5- "farm size"
 #6- "distance to market" AND "distance to input market"
-
 PCC_data<- bind_rows(PCC_hh_age, 
                      PCC_hh_gender,
                      PCC_hh_education,
@@ -133,6 +132,7 @@ sort(unique(PCC_data$coefficient_variance_type))
 sort(unique(PCC_data$model_method))
 table(PCC_data$coefficient_variance_type,PCC_data$model_method )
 
+# model == ANY
 # coefficient_variance_type == c("B_SE", "ME_SE")
 # z= B/SE, t= B/SE
 t_z_B_SE <- function (b, se) {  
@@ -144,8 +144,8 @@ PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in% c("B_SE","ME_SE
   t_z_B_SE(PCC_data$coefficient_num[PCC_data$coefficient_variance_type %in% c("B_SE","ME_SE")],
            PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in% c("B_SE","ME_SE")])
 
-# model_coefficient_variance_type == "probit_B_P", "logit_B_P"
-# coefficient_variance_type == c("B_P", ME_P)
+# model_coefficient_variance_type == "probit_B_P", "logit_B_P", "logit_ME_P
+# coefficient_variance_type == c("B_P", "ME_P")
 # coefficient_num > 0 
 # CHECK: Ref available: Kleinbaum, D. G., & Klein, M. (2010). Logistic regression: a self-learning text (3rd ed.). Springer Science & Business Media.
 # SE = B/z; z=  Φ^−1(1-p/2) ∗ sign(B)
@@ -154,12 +154,12 @@ t_z_probit_logit_B_P <- function (p) {
   return(result)
 }
 
-PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") & 
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P", "logit_ME_P") & 
                            PCC_data$coefficient_num > 0 ] <- 
-  t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") &
+  t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P", "logit_ME_P") &
                                                      PCC_data$coefficient_num > 0 ])
 
-# model_coefficient_variance_type == probit_B_P, logit_B_P
+# model_coefficient_variance_type == "probit_B_P", "logit_B_P", "logit_ME_P"
 # model_method == c("probit", "logit")
 # coefficient_variance_type == c("B_P", ME_P)
 # coefficient_num < 0
@@ -168,15 +168,15 @@ t_z_probit_logit_B_P_2 <- function (p) {
   result<- (qnorm(p/2))
   return(result)
 }
-PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") & 
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P", "logit_ME_P") & 
                            PCC_data$coefficient_num < 0 ] <- 
-  t_z_probit_logit_B_P_2(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P") &
+  t_z_probit_logit_B_P_2(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P", "logit_ME_P") &
                                                        PCC_data$coefficient_num < 0 ])
-
 
 # model_coefficient_variance_type == "tobit_B_P"
 # coefficient_variance_type == c("B_P")
 # t_z= t = Ft^−1 (p/2, df) ∗ sign(b)
+# coefficient_num > 0
 library("PEIP")
 t_z_tobit_B_P <- function (p,n,k) {  
   result<- tinv(p, (n-k-1))
@@ -187,6 +187,26 @@ PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("tobit
   t_z_tobit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")],
                 PCC_data$n_samples_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")],
                 PCC_data$n_predictors_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")])
+
+
+# model_method == "GLM_B_P" Quasi-poisson family
+# coefficient_variance_type == c("B_P")
+# coefficient_num > 0
+# qt(1 - p / 2, df)
+t_z_GLM_B_P <- function (p,n,k) {  
+  result<- qt((1 - p / 2), (n-k-1))
+  return(result)
+}
+
+PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("GLM_B_P") &
+                           PCC_data$coefficient_num >=0 ] <- 
+  t_z_GLM_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("GLM_B_P")&
+                                                PCC_data$coefficient_num >=0 ],
+                  PCC_data$n_samples_num[PCC_data$model_coefficient_variance_type %in%  c("GLM_B_P")&
+                                           PCC_data$coefficient_num >=0 ],
+                  PCC_data$n_predictors_num[PCC_data$model_coefficient_variance_type %in%  c("GLM_B_P")&
+                                              PCC_data$coefficient_num >=0 ])
+
 
 # model_method == ANY
 # coefficient_variance_type == c("B_T", "B_Z")
@@ -199,91 +219,16 @@ t_z_ANY <- function (t_z) {
 PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z")] <- 
   t_z_ANY(PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z")])
 
+#Things to check:
+# Formula to get t value from tobit_B_P
+# Formula to get t value from GLM_B_P
+# Formula to get t value from other_B_P
+# Check if #737 should be included, it reports negative SE values.
 
 
 
 
 
-
-prueba<-PCC_data%>%
-  filter(is.na(z_t_value_recal))
-
-sort(unique(prueba$model_coefficient_variance_type))
-
-
-
-PCC_data<- PCC_data%>%
-  select("id", "model_id","main_crop","intervention_recla","intervention_recla_detail_1",
-         "intervention_recla_detail_2","intervention_recla_detail_3","y_metric_recla",
-         "effect_size_type","x_metric_recla","x_metric_unit","model_analysis_raw","country",
-         "factor", "x_metric_unit_recla", "factor_metric_unit","model_method","coefficient_type",
-         "coefficient", "coefficient_num", "variance_metric","variance_value","variance_value_num","p_value","p_value_num",                                                   
-         "model_coefficient_variance_type", 
-         "z_t_value", "z_t_value_num","z_t_value_recal",
-         "n_predictors","df_original","n_predictors_num","n_samples","n_samples_num")
-
-
-
-
-
-
-
-
-
-# model_coefficient_variance_type == logit_ME_P
-
-# model_method == "logit"
-# variance_metric == "ME_P"
-
-# model_method == ANY
-# factor_level == "B_SE"
-# z= B/SE, t= B/SE
-partial_correlation$z_t_value_recal[partial_correlation$factor_level%in% "B_SE"] <-  
-  t_z_B_SE(partial_correlation$coefficient_num[partial_correlation$factor_level %in% "B_SE"],
-           partial_correlation$variance_value[partial_correlation$factor_level %in% "B_SE"])
-
-
-# model_method == c("probit", "logit")
-# factor_level == c("ME_SE")
-# z= B/SE, t= B/SE
-partial_correlation$z_t_value_recal[partial_correlation$model_method %in% c("probit", "logit") & partial_correlation$factor_level %in% "ME_SE"] <-  
-  t_z_ME_SE(partial_correlation$coefficient_num[partial_correlation$model_method %in% c("probit", "logit") & partial_correlation$factor_level %in% "ME_SE"],
-            partial_correlation$variance_value[partial_correlation$model_method %in% c("probit", "logit") & partial_correlation$factor_level %in% "ME_SE"])
-
-sort(unique(partial_correlation$factor_level))
-
-
-
-# model_method == c("probit", "logit")
-# factor_level == "B_P"
-# coefficient_num < 0
-# z=  Φ^−1(p/2) ∗ sign(B)
-partial_correlation$z_t_value_recal[partial_correlation$model_method %in%  c("probit", "logit") & 
-                                      partial_correlation$factor_level %in% "B_P" &
-                                      partial_correlation$coefficient_num < 0 ] <- 
-  t_z_probit_logit_B_P_2(partial_correlation$variance_value[partial_correlation$model_method %in%  c("probit", "logit") & 
-                                                              partial_correlation$factor_level %in% "B_P" &
-                                                              partial_correlation$coefficient_num < 0 ])
-
-########CHECK###########
-# model_method == "non-parametric correlation coefﬁcient of Phi"
-# "Nonparametric Statistical Methods" by Myles Hollander and Douglas A. Wolfe (3rd edition, 2013)
-# factor_level == "B_P"
-# SE = sqrt((1 - B^2) / (n - 1)); z = B/SE
-partial_correlation$z_t_value_recal[partial_correlation$model_method %in% "non-parametric correlation coefﬁcient of Phi" &
-                                      partial_correlation$factor_level %in% "B_P" ] <- 
-  t_z_npc_phi_B_P(partial_correlation$coefficient_num[partial_correlation$model_method %in% "non-parametric correlation coefﬁcient of Phi" &
-                                                        partial_correlation$factor_level %in% "B_P" ],
-                  partial_correlation$n_samples[partial_correlation$model_method %in% "non-parametric correlation coefﬁcient of Phi" &
-                                                  partial_correlation$factor_level %in% "B_P"] )
-
-# model_method == ANY
-# factor_level == c("B_T", "B_Z")
-partial_correlation$z_t_value_recal[partial_correlation$factor_level %in% c("B_T","B_Z")] <- partial_correlation$variance_value[partial_correlation$factor_level %in% c("B_T","B_Z")]
-partial_correlation$z_t_value_recal[!is.na(partial_correlation$z_t_value)] <- partial_correlation$z_t_value[!is.na(partial_correlation$z_t_value)]
-
-
-table(partial_correlation$factor_level,partial_correlation$model_method )
 
 ## Calculate the partial correlation effect size
 #https://wviechtb.github.io/metadat/reference/dat.aloe2013.html
