@@ -44,6 +44,18 @@ str(PCC_h_size)
 sort(unique(PCC_h_size$factor_metric_unit))
 length(sort(unique(PCC_h_size$id))) # Number of articles 37
 
+##### Information ------
+#"hh farming experience "
+
+## Household head farming experience (years)----
+PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_hh_farming_experience.csv")
+  filter(factor_metric_unit == "farm size (ha)")
+
+str(PCC_farm_size)
+sort(unique(PCC_farm_size$factor_metric_unit))
+length(sort(unique(PCC_farm_size$id))) # Number of articles 47
+
+
 ####### FARM CHARACTERISTICS -----
 ##### Biophysical ------
 #"farm size"
@@ -71,12 +83,13 @@ length(sort(unique(PCC_distance_market$id))) # Number of articles 47
 
 
 #Combine all PCC data for effect size calculation
-#1- "hh age"
-#2- "hh gender"
-#3- "hh education"
-#4- "h size"
-#5- "farm size"
-#6- "distance to market" AND "distance to input market"
+#1- "hh age" (years)
+#2- "hh gender" (1=male)
+#3- "hh education" (years)
+#4- "h size" (number of people)
+#5- "farm size" (ha)
+#6- "distance to market" AND "distance to input market" (km)
+
 PCC_data<- bind_rows(PCC_hh_age, 
                      PCC_hh_gender,
                      PCC_hh_education,
@@ -85,6 +98,7 @@ PCC_data<- bind_rows(PCC_hh_age,
                      PCC_distance_market)
 
 length(sort(unique(PCC_data$id))) # Number of articles 74
+table(PCC_data$factor)
 names(PCC_data)
 sort(unique(PCC_data$effect_size_type))
 sort(unique(PCC_data$y_metric_recla))
@@ -226,24 +240,38 @@ PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z"
 # Check if #737 should be included, it reports negative SE values.
 
 
-
-
-
+## Remove the rows with z_t_value_recal == 0
+PPC_ES<- PCC_data%>%
+  filter(!is.na(z_t_value_recal))
 
 ## Calculate the partial correlation effect size
 #https://wviechtb.github.io/metadat/reference/dat.aloe2013.html
 #install.packages("metafor")
 library(metafor)
 
-sort(unique(adoption_yes_no_proc$intervention_recla))
+sort(unique(PPC_ES$intervention_recla))
+names(PPC_ES)
 
-adoption_yes_no_meta<-escalc(measure="PCOR", ti= z_t_value_recal, ni=n_samples, mi=n_predictors, data=partial_correlation)
 
-### Meta-analysis function
+PPC_ES<-escalc(measure="PCOR", ti= z_t_value_recal, ni=n_samples_num, mi=n_predictors_num, data=PPC_ES)
+
+ ### Meta-analysis function
 run_meta_analysis <- function(subset_arg) {
   rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
          method = "REML", tdist = TRUE, subset = subset_arg)
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###------ Gender: binary (1= male, 0= female) -------------
 table(adoption_yes_no_meta$intervention_recla,adoption_yes_no_meta$factor )
@@ -253,7 +281,6 @@ adoption_yes_no_meta<- adoption_yes_no_meta%>%
   filter(intervention_recla!="pull-push")%>%
   filter(!is.na(yi))%>%
   mutate(factor_intervention= paste(factor, intervention_recla, sep="_"))
-
 
 #Farm size (ha)
 farm_size_agroforestry<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
