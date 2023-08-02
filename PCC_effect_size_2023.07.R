@@ -271,46 +271,34 @@ PCC_meta_analysis <- function(subset_arg) {
          method = "REML", tdist = TRUE, subset = subset_arg)
 }
 
-table(PPC_ES$intervention_recla,PPC_ES$factor )
+table(PPC_ES$intervention_recla,PPC_ES$factor_metric_unit )
 
 
 ###------ Gender: binary (1= male, 0= female) -------------
-#this code works!
-run_models <- function(data) {
-  factors <- unique(data$factor_metric_unit)
-  results <- list()
-  
-  for (model in models) {
-    subset_data <- subset(data, factor_metric_unit == interventions)
-    model_name <- paste(factors, model, sep = "_")
-    model_result <- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id),
-                           data = subset_data,
-                           method = "REML", tdist = TRUE)
-    results[[model_name]] <- summary(model_result)
-  }
-  
-  return(results)
+run_model <- function(data, metric_unit) {
+  model_result <- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id),
+                         data = data,
+                         method = "REML", tdist = TRUE,
+                         subset = (factor_metric_unit == metric_unit))
+  return(summary(model_result))
 }
 
-# Usage
-results <- run_models(adoption_yes_no_meta)
+# Assuming you have defined 'PPC_ES' and 'yi' and 'vi' variables before running the function.
 
-results
+# Vector of factor_metric_unit levels
+factor_metric_units <- unique(PPC_ES$factor_metric_unit)
 
-results_df <- do.call(rbind, results)
-results_df
+# List to store the results of all models
+all_results <- list()
 
+# Loop over all factor_metric_unit levels and run the models
+for (unit in factor_metric_units) {
+  result <- run_model(data = PPC_ES, metric_unit = unit)
+  all_results[[unit]] <- result
+}
 
-
-unique(subset(adoption_yes_no_meta, factor == factor)$intervention_recla)
-
-
-
-
-
-
-
-
+# Combine all results into one table
+combined_results <- do.call(rbind, all_results)
 
 
 
@@ -357,7 +345,7 @@ run_models <- function(data) {
   interventions <- unique(subset(data, factor == "Farm size (ha)")$intervention_recla)
   results <- list()
   
-  for (model in models) {
+  for (models in models) {
     subset_data <- subset(data, factor == "Farm size (ha)" & intervention_recla == interventions)
     model_name <- paste("farm_size", model, sep = "_")
     model_result <- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id),
