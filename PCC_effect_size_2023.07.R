@@ -48,12 +48,12 @@ length(sort(unique(PCC_h_size$id))) # Number of articles 37
 #"hh farming experience "
 
 ## Household head farming experience (years)----
-PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_farming_experience.csv")
-  filter(factor_metric_unit == "farm size (ha)")
+PCC_hh_farming_experience<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_farming_experience.csv")%>%
+  filter(factor_metric_unit == "hh farming experience (years)")
 
-str(PCC_farm_size)
-sort(unique(PCC_farm_size$factor_metric_unit))
-length(sort(unique(PCC_farm_size$id))) # Number of articles 47
+str(PCC_hh_farming_experience)
+sort(unique(PCC_hh_farming_experience$factor_metric_unit))
+length(sort(unique(PCC_hh_farming_experience$id))) # Number of articles 17
 
 
 ####### FARM CHARACTERISTICS -----
@@ -86,20 +86,21 @@ length(sort(unique(PCC_distance_market$id))) # Number of articles 47
 #1- "hh age" (years)
 #2- "hh gender" (1=male)
 #3- "hh education" (years)
-#4- "h size" (number of people)
-#5- "farm size" (ha)
-#6- "distance to market" AND "distance to input market" (km)
+#4- "hh farming experience (years)"
+#5- "h size" (number of people)
+#6- "farm size" (ha)
+#7- "distance to market" AND "distance to input market" (km)
 
 PCC_data<- bind_rows(PCC_hh_age, 
                      PCC_hh_gender,
                      PCC_hh_education,
+                     PCC_hh_farming_experience,
                      PCC_h_size,
                      PCC_farm_size,
                      PCC_distance_market)
 
-length(sort(unique(PCC_data$id))) # Number of articles 74
+length(sort(unique(PCC_data$id))) # Number of articles 77
 table(PCC_data$factor)
-names(PCC_data)
 sort(unique(PCC_data$effect_size_type))
 sort(unique(PCC_data$y_metric_recla))
 table(PCC_data$y_metric_recla)
@@ -128,9 +129,12 @@ PCC_data<- PCC_data%>%
   mutate(coefficient_variance_type= paste(coefficient_type, variance_metric,sep = "_"),
          model_coefficient_variance_type= paste(model_method, coefficient_type, variance_metric,sep = "_"))
 
-# Replace p == NA for 0.9
+# Replace p == NA for 1
+# Ruzzante et al (2019) replaced p== NA for 1
+# Stanley and Doucouliagos recommend to use 0.1 OR 0.5
+# Greenberg et al, (2003) use 0.3, as this is the midpoint between 0.10 and 0.5.
 PCC_data$variance_value_num<- ifelse(PCC_data$variance_metric %in% "P" &
-                                       is.na(PCC_data$variance_value_num) ,0.9,PCC_data$variance_value_num)
+                                       is.na(PCC_data$variance_value_num) ,1,PCC_data$variance_value_num)
 
 PCC_data$variance_value_num<- as.numeric(PCC_data$variance_value_num)
 
@@ -146,7 +150,19 @@ sort(unique(PCC_data$coefficient_variance_type))
 sort(unique(PCC_data$model_method))
 table(PCC_data$coefficient_variance_type,PCC_data$model_method )
 
-# model == ANY
+# model_coefficient_variance_type == 
+#"fixed_effects_B_SE"
+#"instrumental_variable_B_SE"
+#"logit_B_SE"
+#"logit_ME_SE"
+#"OLS_B_SE"
+#"other_B_SE"
+#"other_ME_SE"
+#"probit_B_SE"
+#"probit_ME_SE"
+#"tobit_B_SE"
+#"tobit_ME_SE"
+#"truncated_B_SE"
 # coefficient_variance_type == c("B_SE", "ME_SE")
 # z= B/SE, t= B/SE
 t_z_B_SE <- function (b, se) {  
@@ -158,7 +174,10 @@ PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in% c("B_SE","ME_SE
   t_z_B_SE(PCC_data$coefficient_num[PCC_data$coefficient_variance_type %in% c("B_SE","ME_SE")],
            PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in% c("B_SE","ME_SE")])
 
-# model_coefficient_variance_type == "probit_B_P", "logit_B_P", "logit_ME_P
+# model_coefficient_variance_type == 
+#"logit_B_P"
+#"logit_ME_P"
+#"probit_B_P"
 # coefficient_variance_type == c("B_P", "ME_P")
 # coefficient_num > 0 
 # CHECK: Ref available: Kleinbaum, D. G., & Klein, M. (2010). Logistic regression: a self-learning text (3rd ed.). Springer Science & Business Media.
@@ -173,8 +192,10 @@ PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probi
   t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P", "logit_ME_P") &
                                                      PCC_data$coefficient_num > 0 ])
 
-# model_coefficient_variance_type == "probit_B_P", "logit_B_P", "logit_ME_P"
-# model_method == c("probit", "logit")
+# model_coefficient_variance_type ==
+#"logit_B_P"
+#"logit_ME_P"
+#"probit_B_P"
 # coefficient_variance_type == c("B_P", ME_P)
 # coefficient_num < 0
 # SE = B/z; z=  Φ^−1(p/2) ∗ sign(B)
@@ -187,42 +208,29 @@ PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probi
   t_z_probit_logit_B_P_2(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P", "logit_ME_P") &
                                                        PCC_data$coefficient_num < 0 ])
 
-# model_coefficient_variance_type == "tobit_B_P"
+# model_coefficient_variance_type == 
+#"OLS_B_P"
+#"tobit_B_P"
 # coefficient_variance_type == c("B_P")
+#Formula from Ruzzante et al supp info
 # t_z= t = Ft^−1 (p/2, df) ∗ sign(b)
 # coefficient_num > 0
-library("PEIP")
-t_z_tobit_B_P <- function (p,n,k) {  
-  result<- tinv(p, (n-k-1))
-  return(result)
+t_z_tobit_OLS_B_P <- function(p,n,k) {
+  t <- qt(p/2, (n-k-1))
+  return(t)
 }
 
 PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")] <- 
-  t_z_tobit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")],
+  t_z_tobit_OLS_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")],
                 PCC_data$n_samples_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")],
                 PCC_data$n_predictors_num[PCC_data$model_coefficient_variance_type %in%  c("tobit_B_P")])
 
-
-# model_method == "GLM_B_P" Quasi-poisson family
-# coefficient_variance_type == c("B_P")
-# coefficient_num > 0
-# qt(1 - p / 2, df)
-t_z_GLM_B_P <- function (p,n,k) {  
-  result<- qt((1 - p / 2), (n-k-1))
-  return(result)
-}
-
-PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("GLM_B_P") &
-                           PCC_data$coefficient_num >=0 ] <- 
-  t_z_GLM_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("GLM_B_P")&
-                                                PCC_data$coefficient_num >=0 ],
-                  PCC_data$n_samples_num[PCC_data$model_coefficient_variance_type %in%  c("GLM_B_P")&
-                                           PCC_data$coefficient_num >=0 ],
-                  PCC_data$n_predictors_num[PCC_data$model_coefficient_variance_type %in%  c("GLM_B_P")&
-                                              PCC_data$coefficient_num >=0 ])
-
-
-# model_method == ANY
+# model_method == 
+#"logit_B_T"
+#"logit_B_Z"
+#"other_B_T"
+#"probit_B_T"
+#"tobit_B_T"
 # coefficient_variance_type == c("B_T", "B_Z")
 # t_z= t OR z
 t_z_ANY <- function (t_z) {  
@@ -234,13 +242,14 @@ PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z"
   t_z_ANY(PCC_data$variance_value_num[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z")])
 
 #Things to check:
-# Formula to get t value from tobit_B_P
 # Formula to get t value from GLM_B_P
 # Formula to get t value from other_B_P
 # Check if #737 should be included, it reports negative SE values.
+# Check if z_t_value_recal has the same sign than coefficient_num
 
 
-## Remove the rows with z_t_value_recal == 0
+
+## Remove the rows with z_t_value_recal == NA
 PPC_ES<- PCC_data%>%
   filter(!is.na(z_t_value_recal))
 
@@ -250,43 +259,66 @@ PPC_ES<- PCC_data%>%
 library(metafor)
 
 sort(unique(PPC_ES$intervention_recla))
-names(PPC_ES)
+table(PPC_ES$intervention_recla)
 
+names(PPC_ES)
 
 PPC_ES<-escalc(measure="PCOR", ti= z_t_value_recal, ni=n_samples_num, mi=n_predictors_num, data=PPC_ES)
 
- ### Meta-analysis function
-run_meta_analysis <- function(subset_arg) {
-  rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
+### Meta-analysis function
+PCC_meta_analysis <- function(subset_arg) {
+  rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = PPC_ES,
          method = "REML", tdist = TRUE, subset = subset_arg)
 }
 
-
-
-
-
-
-
-
-
-
-
+table(PPC_ES$intervention_recla,PPC_ES$factor )
 
 
 ###------ Gender: binary (1= male, 0= female) -------------
-table(adoption_yes_no_meta$intervention_recla,adoption_yes_no_meta$factor )
+#this code works!
+run_models <- function(data) {
+  factors <- unique(data$factor_metric_unit)
+  results <- list()
+  
+  for (model in models) {
+    subset_data <- subset(data, factor_metric_unit == interventions)
+    model_name <- paste(factors, model, sep = "_")
+    model_result <- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id),
+                           data = subset_data,
+                           method = "REML", tdist = TRUE)
+    results[[model_name]] <- summary(model_result)
+  }
+  
+  return(results)
+}
 
-## 
-adoption_yes_no_meta<- adoption_yes_no_meta%>%
-  filter(intervention_recla!="pull-push")%>%
-  filter(!is.na(yi))%>%
-  mutate(factor_intervention= paste(factor, intervention_recla, sep="_"))
+# Usage
+results <- run_models(adoption_yes_no_meta)
+
+results
+
+results_df <- do.call(rbind, results)
+results_df
+
+
+
+unique(subset(adoption_yes_no_meta, factor == factor)$intervention_recla)
+
+
+
+
+
+
+
+
+
+
 
 #Farm size (ha)
-farm_size_agroforestry<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
-                                method = "REML", tdist = TRUE,subset = (factor=="Farm size (ha)"& intervention_recla=="agroforestry"))
+farm_size<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = PPC_ES,
+                                method = "REML", tdist = TRUE,subset = (factor_metric_unit=="farm size (ha)"))
 
-summary(farm_size_agroforestry)
+summary(farm_size)
 
 farm_size_intercropping<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
                                  method = "REML", tdist = TRUE,subset = (factor=="Farm size (ha)"& intervention_recla=="intercropping"))
