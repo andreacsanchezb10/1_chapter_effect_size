@@ -247,8 +247,6 @@ PCC_data$z_t_value_recal[PCC_data$coefficient_variance_type %in%  c("B_T", "B_Z"
 # Check if #737 should be included, it reports negative SE values.
 # Check if z_t_value_recal has the same sign than coefficient_num
 
-
-
 ## Remove the rows with z_t_value_recal == NA
 PPC_ES<- PCC_data%>%
   filter(!is.na(z_t_value_recal))
@@ -261,29 +259,18 @@ library(metafor)
 sort(unique(PPC_ES$intervention_recla))
 table(PPC_ES$intervention_recla)
 
-names(PPC_ES)
-
 PPC_ES<-escalc(measure="PCOR", ti= z_t_value_recal, ni=n_samples_num, mi=n_predictors_num, data=PPC_ES)
 
-### Meta-analysis function
-PCC_meta_analysis <- function(subset_arg) {
-  rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = PPC_ES,
-         method = "REML", tdist = TRUE, subset = subset_arg)
-}
+### Meta-analysis function ----
+table(PPC_ES$factor_metric_unit)
 
-table(PPC_ES$intervention_recla,PPC_ES$factor_metric_unit )
-
-
-###------ Gender: binary (1= male, 0= female) -------------
-run_model <- function(data, metric_unit) {
+meta_regression_model <- function(data, metric_unit) {
   model_result <- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id),
                          data = data,
                          method = "REML", tdist = TRUE,
                          subset = (factor_metric_unit == metric_unit))
   return(summary(model_result))
 }
-
-# Assuming you have defined 'PPC_ES' and 'yi' and 'vi' variables before running the function.
 
 # Vector of factor_metric_unit levels
 factor_metric_units <- unique(PPC_ES$factor_metric_unit)
@@ -293,172 +280,50 @@ all_results <- list()
 
 # Loop over all factor_metric_unit levels and run the models
 for (unit in factor_metric_units) {
-  result <- run_model(data = PPC_ES, metric_unit = unit)
+  result <- meta_regression_model(data = PPC_ES, metric_unit = unit)
   all_results[[unit]] <- result
 }
 
+
 # Combine all results into one table
-combined_results <- do.call(rbind, all_results)
+meta_regression_results <- do.call(rbind, all_results)
+meta_regression_results <- as.data.frame(meta_regression_results)%>%
+  rownames_to_column(., var = "factor_metric_unit")%>%
+  rownames_to_column(., var = "factor_metric_unit_id")
 
 
-
-#Farm size (ha)
-farm_size<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = PPC_ES,
-                                method = "REML", tdist = TRUE,subset = (factor_metric_unit=="farm size (ha)"))
-
-summary(farm_size)
-
-farm_size_intercropping<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
-                                 method = "REML", tdist = TRUE,subset = (factor=="Farm size (ha)"& intervention_recla=="intercropping"))
-
-summary(farm_size_intercropping)
-
-farm_size_rotation<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
-                            method = "REML", tdist = TRUE,subset = (factor=="Farm size (ha)"& intervention_recla=="crop rotation"))
-
-summary(farm_size_rotation)
-
-#"Gender (1= Male, 0= Female)"
-gender_agroforestry<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
-                             method = "REML", tdist = TRUE,subset = (factor=="Gender (1= Male, 0= Female)"& intervention_recla=="agroforestry"))
-
-summary(gender_agroforestry)
-
-gender_intercropping<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
-                              method = "REML", tdist = TRUE,subset = (factor=="Gender (1= Male, 0= Female)"& intervention_recla=="intercropping"))
-
-summary(gender_intercropping)
-
-gender_rotation<- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id), data = adoption_yes_no_meta,
-                         method = "REML", tdist = TRUE,subset = (factor=="Gender (1= Male, 0= Female)"& intervention_recla=="crop rotation"))
-
-summary(gender_rotation)
-
-
-
-unique_factors <- unique(subset(adoption_yes_no_meta, factor == "Farm size (ha)")$intervention_recla)
-unique_factors
-factor_intervention
-
-#this code works!
-run_models <- function(data) {
-  interventions <- unique(subset(data, factor == "Farm size (ha)")$intervention_recla)
-  results <- list()
-  
-  for (models in models) {
-    subset_data <- subset(data, factor == "Farm size (ha)" & intervention_recla == interventions)
-    model_name <- paste("farm_size", model, sep = "_")
-    model_result <- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id),
-                           data = subset_data,
-                           method = "REML", tdist = TRUE)
-    results[[model_name]] <- summary(model_result)
-  }
-  
-  return(results)
-}
-
-# Usage
-results <- run_models(adoption_yes_no_meta)
-
-results
-
-results_df <- do.call(rbind, results)
-results_df
-
-
-
-unique(subset(adoption_yes_no_meta, factor == factor)$intervention_recla)
-
-#______________________
-run_models <- function(data, factor_var) {
-  interventions <- unique(subset(data, factor == factor_var)$intervention_recla)
-  results <- list()
-  
-  for (intervention_var in interventions) {
-    subset_data <- subset(data, factor == factor_var & intervention_recla == intervention_var)
-    model_name <- paste(factor_var, intervention_var, sep = "_")
-    model_result <- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id),
-                           data = subset_data,
-                           method = "REML", tdist = TRUE)
-    results[[model_name]] <- summary(model_result)
-  }
-  
-  return(results)
-}
-
-# Usage
-results_farm_size <- run_models(adoption_yes_no_meta, "Farm size (ha)")
-results_hh_gender <- run_models(adoption_yes_no_meta, "Gender (1= Male, 0= Female)")
-results_hh_age <- run_models(adoption_yes_no_meta, "hh age (years)")
-
-# Combine results into a single dataframe
-results_all <- do.call(rbind, c(results_farm_size, results_hh_gender,results_hh_age))
-
-
-#_______________________
-
-
-
-
-
-# Get unique factors and intervention_recla
-unique_factors <- unique(adoption_yes_no_meta$factor)
-unique_interventions <- unique(adoption_yes_no_meta$intervention_recla)
-unique_factors
-unique_interventions
-
-# Fit the models
-
-results_list <- list()
-
-for (factor in unique_factors) {
-  for (intervention in unique_interventions) {
-    # Filter the data for the current factor and intervention
-    filtered_data <- adoption_yes_no_meta %>% filter(factor == factor & intervention_recla == intervention)
-    
-    # Fit the model if there is any data for the current combination
-    if (!is.na(nrow(filtered_data)) && nrow(filtered_data) > 1) {
-      model <- rma.mv(yi, vi, random = list(~ 1 | model_id, ~ 1 | id),
-                      data = filtered_data, method = "REML", tdist = TRUE)
-      attr(model, "intervention_recla") <- intervention
-      attr(model, "factor") <- factor
-      results_list[[paste0(factor, "_", intervention)]] <- coef(summary(model))
-    }
-  }
-}
-
-
-articles_count <- adoption_yes_no_meta %>%
-  group_by(factor, intervention_recla) %>%
+articles_count <- PPC_ES %>%
+  group_by(factor_metric_unit) %>%
   summarise(n_articles = n_distinct(id))
 
-install.packages("tibble")
-library(tibble)
-results<- do.call(rbind, results_list)%>%
-  rownames_to_column(., var = "row_id")
-#mutate(factors= unique(gender_adoption_yes_no_meta$factor),
-#      intervention_recla = unique(gender_adoption_yes_no_meta$intervention_recla))
-left_join(articles_count, by = "intervention_recla")%>%
+names(results)
+results<- meta_regression_results%>%
+  mutate(beta = as.numeric(beta))%>%
+  mutate(factor_metric_unit_id= as.numeric(factor_metric_unit_id))%>%
+  left_join(articles_count, by = "factor_metric_unit")%>%
   mutate(significance = if_else(pval <=0.001,"***",
                                 if_else(pval>0.001&pval<0.01,"**",
                                         if_else(pval>0.01&pval<=0.05,"*",
-                                                if_else(pval>0.05&pval<=0.1,"","")))))
-mutate(intervention_recla_2 = c("Fallow", "Agroforestry","Intercropping","Crop rotation", 
-                                "Integrated crop-livestock", "Mixed practices"))%>%
+                                                if_else(pval>0.05&pval<=0.1,"","")))))%>%
+  select(factor_metric_unit_id,factor_metric_unit, beta, ci.lb, ci.ub)
   mutate(label = paste(significance, " (", n_articles, ")", sep = ""))
 
 install.packages("pals")
 library(ggplot2)
 library(pals)
 
-ggplot(data=gender_results, aes(y=factors,x=estimate,xmin=ci.lb, xmax=ci.ub,
-                                colour = factor(intervention_recla_2)))+
+results<-as.data.frame(results)
+str(results)
+ggplot(data=results, aes(y=factor_metric_unit_id,x=beta,xmin=ci.lb, xmax=ci.ub))
+
+ggplot(data=results, aes(y=factor_metric_unit,x=beta,xmin=ci.lb, xmax=ci.ub,
+                                colour = factor(factor_metric_unit)))
   geom_vline(xintercept=0, colour = "grey20",linetype = 3, size=0.7)+
   geom_errorbar(width=0.2,size=1, position = (position_dodge(width = -0.2)))+
   geom_point(size = 4, position = (position_dodge(width = -0.2)))+
-  geom_text(aes(label=label, x=ci.ub, group=intervention_recla_2), vjust=0.3, hjust=-0.09,
+  geom_text(aes(label=label, x=ci.ub, group=factor_metric_unit), vjust=0.3, hjust=-0.09,
             color="black", size=4, family="sans",position = (position_dodge(width = -0.2)))+
-  scale_colour_brewer(palette = "Paired")+
+  scale_colour_brewer(palette = "Paired")
   labs(x="PCOR",colour = "Diversified farming systems")+
   theme(axis.text.x = element_text(color="black",size=12,  family = "sans",
                                    margin = margin(t = 5, r = 0, b = 5, l = 0)),
