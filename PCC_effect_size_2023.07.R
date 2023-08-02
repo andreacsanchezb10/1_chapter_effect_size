@@ -13,7 +13,7 @@ library(funModeling)
 #"h size"
 
 ## Household head Age (years)----
-PCC_hh_age<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_hh_age.csv")%>%
+PCC_hh_age<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_age.csv")%>%
   filter(factor_metric_unit == "hh age (years)")
 
 str(PCC_hh_age)
@@ -21,7 +21,7 @@ sort(unique(PCC_hh_age$factor_metric_unit))
 length(sort(unique(PCC_hh_age$id))) # Number of articles 54
 
 ## Household head Gender (1= male, 0= female)----
-PCC_hh_gender<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_hh_gender.csv")%>%
+PCC_hh_gender<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_gender.csv")%>%
   filter(factor_metric_unit == "hh gender (1= male, 0= female)")
 
 str(PCC_hh_gender)
@@ -29,7 +29,7 @@ sort(unique(PCC_hh_gender$factor_metric_unit))
 length(sort(unique(PCC_hh_gender$id))) # Number of articles 48
 
 ## Household head Education (years) ---- 
-PCC_hh_education<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_hh_education.csv")%>%
+PCC_hh_education<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_education.csv")%>%
   filter(factor_metric_unit == "hh education (years)")
 
 str(PCC_hh_education)
@@ -37,7 +37,7 @@ sort(unique(PCC_hh_education$factor_metric_unit))
 length(sort(unique(PCC_hh_education$id))) # Number of articles 32
 
 ## Household size (number of people) ----
-PCC_h_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_h_size.csv")%>%
+PCC_h_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_h_size.csv")%>%
   filter(factor_metric_unit == "h size (number of people)")
 
 str(PCC_h_size)
@@ -48,7 +48,7 @@ length(sort(unique(PCC_h_size$id))) # Number of articles 37
 #"hh farming experience "
 
 ## Household head farming experience (years)----
-PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_hh_farming_experience.csv")
+PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_farming_experience.csv")
   filter(factor_metric_unit == "farm size (ha)")
 
 str(PCC_farm_size)
@@ -60,7 +60,7 @@ length(sort(unique(PCC_farm_size$id))) # Number of articles 47
 ##### Biophysical ------
 #"farm size"
 ## Farm size (ha)----
-PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_farm_size.csv")%>%
+PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_size.csv")%>%
   filter(factor_metric_unit == "farm size (ha)")
 
 str(PCC_farm_size)
@@ -73,7 +73,7 @@ length(sort(unique(PCC_farm_size$id))) # Number of articles 47
 #"distance to road"
 
 ## Distance to market AND Distance to input market (Km) ----
-PCC_distance_market<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_PhD/PCC/PCC_distance_market.csv")%>%
+PCC_distance_market<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_market.csv")%>%
   mutate(variance_value = as.character(variance_value))%>%
   filter(factor_metric_unit == "distance to market (km)")
 

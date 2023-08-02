@@ -1,0 +1,92 @@
+starting worker pid=20932 on localhost:11766 at 21:07:24.523
+starting worker pid=22688 on localhost:11766 at 21:07:24.742
+starting worker pid=18484 on localhost:11766 at 21:07:24.963
+starting worker pid=21704 on localhost:11766 at 21:07:25.171
+starting worker pid=16676 on localhost:11766 at 21:07:25.388
+starting worker pid=19000 on localhost:11766 at 21:07:25.593
+starting worker pid=21548 on localhost:11766 at 21:07:25.802
+starting worker pid=23976 on localhost:11766 at 21:07:26.013
+starting worker pid=21272 on localhost:11766 at 21:07:26.222
+starting worker pid=19360 on localhost:11766 at 21:07:26.434
+starting worker pid=18460 on localhost:11766 at 21:07:26.710
+starting worker pid=17632 on localhost:11766 at 21:07:26.915
+starting worker pid=2336 on localhost:11766 at 21:07:27.131
+starting worker pid=15560 on localhost:11766 at 21:07:27.345
+starting worker pid=25480 on localhost:11766 at 21:07:27.551
+rho =  0.7071068 n =  25
+rho =  0.1104315 n =  200
+rho =  0.3162278 n =  25
+rho =  0.1104315 n =  25
+rho =  0.3162278 n =  100
+rho =   rho = 315 n =  100
+0.7071068 0.11 43155rho  h  =  0.3162278 n =  40050
+
+o =  
+0.7071068 n =  200
+rho = r0.316rho  . ho = 8 n =  100
+n =  200
+ 0.3162278 n = 04315 n = 400400
+starting worker pid=5356 on localhost:11766 at 23:25:00.249
+starting worker pid=15964 on localhost:11766 at 23:25:00.466
+starting worker pid=17412 on localhost:11766 at 23:25:00.672
+starting worker pid=3480 on localhost:11766 at 23:25:00.881
+starting worker pid=24596 on localhost:11766 at 23:25:01.082
+starting worker pid=11620 on localhost:11766 at 23:25:01.282
+starting worker pid=11684 on localhost:11766 at 23:25:01.488
+starting worker pid=21832 on localhost:11766 at 23:25:01.691
+starting worker pid=24152 on localhost:11766 at 23:25:01.895
+starting worker pid=23240 on localhost:11766 at 23:25:02.098
+starting worker pid=22352 on localhost:11766 at 23:25:02.301
+starting worker pid=18572 on localhost:11766 at 23:25:02.513
+starting worker pid=6352 on localhost:11766 at 23:25:02.718
+starting worker pid=14684 on localhost:11766 at 23:25:02.915
+starting worker pid=10084 on localhost:11766 at 23:25:03.114
+rho =  0.3162278 n =  25
+rho =  0.3162278 n =  50
+rho =  0.1104315 n =  50
+rho =  0.3162278 n =  100
+rho =  0.7071068 n =  100
+rho =  0.3162278 n =  400
+rho =  0.7071068 n =  25
+rho =  0.1104315 n =  400
+rho =  0.1104315 n =  rho =  0.1104315 n =  100
+rho =   0.70710680.1104315 n =  250
+rho =  0.7071068 n =  400
+rho =  0.7071068 n =  50
+rho =  0.3162278 n =  200
+starting worker pid=6248 on localhost:11766 at 23:47:45.385
+starting worker pid=2136 on localhost:11766 at 23:47:45.588
+starting worker pid=13780 on localhost:11766 at 23:47:45.791
+starting worker pid=4448 on localhost:11766 at 23:47:45.998
+starting worker pid=21248 on localhost:11766 at 23:47:46.208
+starting worker pid=19400 on localhost:11766 at 23:47:46.412
+starting worker pid=23004 on localhost:11766 at 23:47:46.628
+starting worker pid=20080 on localhost:11766 at 23:47:46.836
+starting worker pid=16816 on localhost:11766 at 23:47:47.039
+starting worker pid=11960 on localhost:11766 at 23:47:47.251
+starting worker pid=19216 on localhost:11766 at 23:47:47.456
+starting worker pid=6764 on localhost:11766 at 23:47:47.670
+starting worker pid=6968 on localhost:11766 at 23:47:47.883
+starting worker pid=18804 on localhost:11766 at 23:47:48.086
+starting worker pid=14044 on localhost:11766 at 23:47:48.291
+rho =  0.7071068 n =  200
+rho =  0.1104315 n =  200
+rho =  0.1104315 n =  25
+rho =  0.1104315 n =  50
+rho =  0.1104315 n =  100
+rho =  0.3162278 n =  50
+rho =  0.3162278 0.7071068 n =  100
+=  25
+rho =  0.7071068 n =  400
+rho =  0.7071068 n =  25
+rho =  0.3162278 rho    0.3162278200
+=  100
+rho =  0.1104315 n =  400
+rho =  0.3162278 n =  400
+rho =  0.7071068 n =  50
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Execution halted
