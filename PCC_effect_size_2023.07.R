@@ -3,7 +3,6 @@ library(Rtools)
 library(readr)
 library(plyr)
 library(dplyr)
-library(funModeling)
 
 ####### FARMER CHARACTERISTICS -------
 ##### Socio-demographic ------
@@ -44,10 +43,31 @@ str(PCC_h_size)
 sort(unique(PCC_h_size$factor_metric_unit))
 length(sort(unique(PCC_h_size$id))) # Number of articles 37
 
-##### Information ------
-#"hh farming experience "
+##### Economic and financial capital ------
+#"access to credit"
+#"hh off-farm income" AND "hh engaged in off-farm activities"
 
-## Household head farming experience (years)----
+## Access to credit ----
+PCC_access_credit<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_access_credit.csv")%>%
+  filter(factor_metric_unit == "access to credit (1= yes, 0= no)")
+
+str(PCC_access_credit)
+sort(unique(PCC_access_credit$factor_metric_unit))
+length(sort(unique(PCC_access_credit$id))) # Number of articles 25
+
+## Household off-farm income ----
+PCC_off_farm_income<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_off_farm_income.csv")%>%
+  filter(factor_metric_unit == "off-farm income (1= yes, 0= no)")
+
+str(PCC_off_farm_income)
+sort(unique(PCC_off_farm_income$factor_metric_unit))
+length(sort(unique(PCC_off_farm_income$id))) # Number of articles 27
+
+##### Information ------
+#"hh farming experience"
+#"hh association member"
+
+## Household head farming experience (years) ----
 PCC_hh_farming_experience<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_farming_experience.csv")%>%
   filter(factor_metric_unit == "hh farming experience (years)")
 
@@ -55,8 +75,39 @@ str(PCC_hh_farming_experience)
 sort(unique(PCC_hh_farming_experience$factor_metric_unit))
 length(sort(unique(PCC_hh_farming_experience$id))) # Number of articles 17
 
+## Household head association member ----
+PCC_hh_association_member<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_association_member.csv")%>%
+  filter(factor_metric_unit == "hh association member (1= yes, 0= no)")
+
+str(PCC_hh_association_member)
+sort(unique(PCC_hh_association_member$factor_metric_unit))
+length(sort(unique(PCC_hh_association_member$id))) # Number of articles 34
 
 ####### FARM CHARACTERISTICS -----
+##### Social capital ------
+#"farm labour force"
+
+## Farm labour force----
+PCC_farm_labour<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_labour.csv")%>%
+  filter(factor_metric_unit == "farm labour force (number of people)")
+
+str(PCC_farm_labour)
+sort(unique(PCC_farm_labour$factor_metric_unit))
+length(sort(unique(PCC_farm_labour$id))) # Number of articles 15
+
+##### Physical capital ------
+#"secured land tenure"
+#"livestock ownership"
+
+## Secure land tenure----
+PCC_land_tenure_security<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_land_tenure_security.csv")%>%
+  filter(factor_metric_unit == "secured land tenure (1= secure, 0= otherwise)")
+
+str(PCC_land_tenure_security)
+sort(unique(PCC_land_tenure_security$factor_metric_unit))
+length(sort(unique(PCC_land_tenure_security$id))) # Number of articles 27
+
+
 ##### Biophysical ------
 #"farm size"
 ## Farm size (ha)----
