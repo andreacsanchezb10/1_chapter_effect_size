@@ -152,12 +152,12 @@ sort(unique(PCC_distance_market$factor_metric_unit))
 length(sort(unique(PCC_distance_market$id))) # Number of articles 47
 
 ## Distance to road (Km) ----
-PCC_distance_road<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_road.csv")
-  filter(factor_metric_unit == "distance to market (km)")
+PCC_distance_road<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_road.csv")%>%
+  filter(factor_metric_unit == "distance to road (km)")
 
 str(PCC_distance_road)
 sort(unique(PCC_distance_road$factor_metric_unit))
-length(sort(unique(PCC_distance_road$id))) # Number of articles 47
+length(sort(unique(PCC_distance_road$id))) # Number of articles 7
 
 #Combine all PCC data for effect size calculation
 #1- "hh age" (years)
@@ -183,8 +183,31 @@ PCC_data<- bind_rows(PCC_access_credit,
                      PCC_land_tenure_security,
                      PCC_livestock_ownership,
                      PCC_off_farm_income)
+table(PPC_ES$factor_metric_unit)
+sort(unique(PPC_ES$factor_metric_unit))
+PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("hh age (years)",
+                                                           "hh gender (1= male, 0= female)",
+                                                           "hh education (years)",
+                                                           "h size (number of people)",
+                                                           "access to credit (1= yes, 0= no)",
+                                                           "off-farm income (1= yes, 0= no)",
+                                                           "hh farming experience (years)",
+                                                           "hh association member (1= yes, 0= no)")]<-"Farmer characteristics"
 
-length(sort(unique(PCC_data$id))) # Number of articles 77
+PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("farm labour force (number of people)",
+                                                           "secured land tenure (1= secure, 0= otherwise)",
+                                                           "livestock ownership (TLU)",
+                                                           "farm size (ha)")]<-"Farm characteristics"
+
+PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("farm labour force (number of people)",
+                                                           "secured land tenure (1= secure, 0= otherwise)",
+                                                           "livestock ownership (TLU)",
+                                                           "farm size (ha)")]<-"Farm characteristics"
+PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("agricultural extension (1= yes, 0= no)",
+                                                           "distance to market (km)",
+                                                           "distance to road (km)")]<-"Context characteristics"                                                          
+                                                           
+length(sort(unique(PCC_data$id))) # Number of articles 78
 table(PCC_data$factor)
 sort(unique(PCC_data$effect_size_type))
 sort(unique(PCC_data$y_metric_recla))
@@ -273,14 +296,15 @@ t_z_probit_logit_B_P <- function (p) {
 }
 
 PCC_data$z_t_value_recal[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P", "logit_ME_P") & 
-                           PCC_data$coefficient_num > 0 ] <- 
+                           PCC_data$coefficient_num >= 0 ] <- 
   t_z_probit_logit_B_P(PCC_data$variance_value_num[PCC_data$model_coefficient_variance_type %in%  c("probit_B_P", "logit_B_P", "logit_ME_P") &
-                                                     PCC_data$coefficient_num > 0 ])
+                                                     PCC_data$coefficient_num >= 0 ])
 
 # model_coefficient_variance_type ==
 #"logit_B_P"
 #"logit_ME_P"
 #"probit_B_P"
+#"logit_ME_P"
 # coefficient_variance_type == c("B_P", ME_P)
 # coefficient_num < 0
 # SE = B/z; z=  Φ^−1(p/2) ∗ sign(B)
@@ -382,6 +406,9 @@ articles_count <- PPC_ES %>%
   group_by(factor_metric_unit) %>%
   summarise(n_articles = n_distinct(id))
 
+install.packages("string")
+library(stringi)
+
 results<- meta_regression_results%>%
   mutate(beta = as.numeric(beta))%>%
   left_join(articles_count, by = "factor_metric_unit")%>%
@@ -390,15 +417,56 @@ results<- meta_regression_results%>%
                                 if_else(pval>0.001&pval<0.01,"**",
                                         if_else(pval>0.01&pval<=0.05,"*",
                                                 if_else(pval>0.05&pval<=0.1,"","")))))%>%
-  select(factor_metric_unit, beta, ci.lb, ci.ub,significance,n_articles)
+  select(factor_metric_unit, beta, ci.lb, ci.ub,significance,n_articles)%>%
   mutate(label = paste(significance, " (", n_articles, ")", sep = ""))
+  
 
-install.packages("pals")
+results$factor_context[results$factor_metric_unit %in% c("hh age (years)",
+                                                           "hh gender (1= male, 0= female)",
+                                                           "hh education (years)",
+                                                           "h size (number of people)",
+                                                           "access to credit (1= yes, 0= no)",
+                                                           "off-farm income (1= yes, 0= no)",
+                                                           "hh farming experience (years)",
+                                                           "hh association member (1= yes, 0= no)")]<-"Farmer characteristics"
+
+results$factor_context[results$factor_metric_unit %in% c("farm labour force (number of people)",
+                                                           "secured land tenure (1= secure, 0= otherwise)",
+                                                           "livestock ownership (TLU)",
+                                                           "farm size (ha)")]<-"Farm characteristics"
+
+results$factor_context[results$factor_metric_unit %in% c("farm labour force (number of people)",
+                                                           "secured land tenure (1= secure, 0= otherwise)",
+                                                           "livestock ownership (TLU)",
+                                                           "farm size (ha)")]<-"Farm characteristics"
+results$factor_context[results$factor_metric_unit %in% c("agricultural extension (1= yes, 0= no)",
+                                                           "distance to market (km)",
+                                                           "distance to road (km)")]<-"Context characteristics" 
+
+results$factor_metric_unit<-str_to_sentence(results$factor_metric_unit)
+#install.packages("tidyverse")
+library(tidyverse)
+
+results<- results%>%
+  group_by(factor_context) %>% 
+  # within each group, sort rows according to value of factor_metric_unit
+  arrange(factor_metric_unit) %>% 
+  # create new column with rank (or row number) within each group
+  mutate(order_in_group=row_number()) %>% 
+  # transform rank values into a factor
+  mutate(order_in_group=as.factor(order_in_group)) %>%
+  # remove grouping
+  ungroup()%>%
+  mutate(factor_metric_unit =as.integer(factor_metric_unit))
+
+str(results)
+
+#install.packages("pals")
 library(ggplot2)
 library(pals)
 
 ggplot(data=results, aes(y=factor_metric_unit,x=beta,xmin=ci.lb, xmax=ci.ub,
-                                colour = factor(factor_metric_unit)))+
+                                colour = factor(factor_context)))+
   geom_vline(xintercept=0, colour = "grey20",linetype = 1, linewidth=0.7)+
   geom_errorbar(width=0.2,size=1, position = (position_dodge(width = -0.2)),show.legend = FALSE)+
   geom_point(size = 4, position = (position_dodge(width = -0.2)),show.legend = FALSE)+
