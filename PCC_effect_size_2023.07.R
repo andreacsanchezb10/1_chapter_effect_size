@@ -107,9 +107,17 @@ str(PCC_land_tenure_security)
 sort(unique(PCC_land_tenure_security$factor_metric_unit))
 length(sort(unique(PCC_land_tenure_security$id))) # Number of articles 27
 
+## Livestock ownership ----
+PCC_livestock_ownership<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_livestock_ownership.csv")%>%
+  filter(factor_metric_unit == "livestock ownership (TLU)")
+
+str(PCC_livestock_ownership)
+sort(unique(PCC_livestock_ownership$factor_metric_unit))
+length(sort(unique(PCC_livestock_ownership$id))) # Number of articles 27
 
 ##### Biophysical ------
 #"farm size"
+
 ## Farm size (ha)----
 PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_size.csv")%>%
   filter(factor_metric_unit == "farm size (ha)")
@@ -119,6 +127,17 @@ sort(unique(PCC_farm_size$factor_metric_unit))
 length(sort(unique(PCC_farm_size$id))) # Number of articles 47
 
 ####### CONTEXT CHARACTERISTICS -----
+##### Information ------
+#"agricultural extension"
+
+## Access to agricultural extension ----
+PCC_agricultural_extension<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_agricultural_extension.csv")%>%
+  filter(factor_metric_unit == "agricultural extension (1= yes, 0= no)")
+
+str(PCC_agricultural_extension)
+sort(unique(PCC_agricultural_extension$factor_metric_unit))
+length(sort(unique(PCC_agricultural_extension$id))) # Number of articles 27
+
 ##### Physical capital ------
 #"distance to market" AND "distance to input market"
 #"distance to road"
@@ -132,6 +151,13 @@ str(PCC_distance_market)
 sort(unique(PCC_distance_market$factor_metric_unit))
 length(sort(unique(PCC_distance_market$id))) # Number of articles 47
 
+## Distance to road (Km) ----
+PCC_distance_road<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_road.csv")
+  filter(factor_metric_unit == "distance to market (km)")
+
+str(PCC_distance_road)
+sort(unique(PCC_distance_road$factor_metric_unit))
+length(sort(unique(PCC_distance_road$id))) # Number of articles 47
 
 #Combine all PCC data for effect size calculation
 #1- "hh age" (years)
@@ -142,13 +168,21 @@ length(sort(unique(PCC_distance_market$id))) # Number of articles 47
 #6- "farm size" (ha)
 #7- "distance to market" AND "distance to input market" (km)
 
-PCC_data<- bind_rows(PCC_hh_age, 
-                     PCC_hh_gender,
+PCC_data<- bind_rows(PCC_access_credit,
+                     PCC_agricultural_extension,
+                     PCC_distance_market,
+                     PCC_distance_road,
+                     PCC_farm_labour,
+                     PCC_farm_size,
+                     PCC_h_size,
+                     PCC_hh_age, 
+                     PCC_hh_association_member,
                      PCC_hh_education,
                      PCC_hh_farming_experience,
-                     PCC_h_size,
-                     PCC_farm_size,
-                     PCC_distance_market)
+                     PCC_hh_gender,
+                     PCC_land_tenure_security,
+                     PCC_livestock_ownership,
+                     PCC_off_farm_income)
 
 length(sort(unique(PCC_data$id))) # Number of articles 77
 table(PCC_data$factor)
