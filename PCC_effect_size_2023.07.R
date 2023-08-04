@@ -417,8 +417,7 @@ results<- meta_regression_results%>%
                                 if_else(pval>0.001&pval<0.01,"**",
                                         if_else(pval>0.01&pval<=0.05,"*",
                                                 if_else(pval>0.05&pval<=0.1,"","")))))%>%
-  select(factor_metric_unit, beta, ci.lb, ci.ub,significance,n_articles)%>%
-  mutate(label = paste(significance, " (", n_articles, ")", sep = ""))
+  select(factor_metric_unit, beta, ci.lb, ci.ub,significance,n_articles,k)
   
 
 results$factor_context[results$factor_metric_unit %in% c("hh age (years)",
@@ -448,38 +447,31 @@ results$factor_metric_unit<-str_to_sentence(results$factor_metric_unit)
 library(tidyverse)
 
 results<- results%>%
-  group_by(factor_context) %>% 
-  # within each group, sort rows according to value of factor_metric_unit
-  arrange(factor_context)%>%
-  # create new column with rank (or row number) within each group
-  mutate(order_in_group=row_number())%>%
-  # transform rank values into a factor
-  mutate(order_in_group=as.factor(order_in_group)) %>%
-  # remove grouping
-  ungroup()
-  mutate(factor_metric_unit =as.integer(factor_metric_unit))
+  mutate(factor_metric_unit = paste(factor_metric_unit, " (", n_articles,", ",k, ")", sep = ""))
 
 results$factor_metric_unit = with(results, reorder(factor_metric_unit, factor_context, median))
   
-  
-str(results)
-
-
 #install.packages("pals")
 library(ggplot2)
 library(pals)
+library(RColorBrewer)
 
-results%>%
-  ggplot(aes(y=factor_metric_unit,x=beta,xmin=ci.lb, xmax=ci.ub,
+dark2_palette <- brewer.pal(n = 8, name = "Accent")
+
+dark2_palette
+
+
+ggplot(data=results, aes(y=factor_metric_unit,x=beta,xmin=ci.lb, xmax=ci.ub,
                                 colour = factor(factor_context) ))+
   geom_vline(xintercept=0, colour = "grey20",linetype = 1, linewidth=0.7)+
-  geom_errorbar(width=0.2,size=1, position = (position_dodge(width = -0.2)),show.legend = FALSE)+
-  geom_point(size = 4, position = (position_dodge(width = -0.2)),show.legend = FALSE)+
+  geom_errorbar(width=0.2,size=1, position = (position_dodge(width = -0.2)),show.legend = TRUE)+
+  geom_point(size = 4, position = (position_dodge(width = -0.2)),show.legend = TRUE)+
   geom_text(aes(label=significance, x=ci.ub+0.01, group=factor_metric_unit), vjust=0.7, hjust=-0.005,
             color="black", size=7, family="sans",face="bold",position = (position_dodge(width = -0.5)))+
-  scale_colour_brewer(palette = "Paired")+
+  scale_colour_brewer(palette = "Accent", name= "Factors class")+
   scale_y_discrete(limits=rev, labels= results$factor_metric_unit, breaks=results$factor_metric_unit,
                    position = "left")+
+  xlab("PCC")+
   theme(axis.text.x = element_text(color="black",size=12,  family = "sans",
                                    margin = margin(t = 5, r = 0, b = 5, l = 0)),
         axis.text.y = element_text(color="black",size=11, family = "sans",
@@ -491,76 +483,102 @@ results%>%
         panel.background = element_rect(fill = "White", color = "White"),
         panel.spacing = unit(2.5, "lines"),
         panel.grid.major  = element_line(color = "grey90",size = 0.6),
-        axis.line = element_line(colour = "black"))
+        axis.line = element_line(colour = "black"),
+        legend.box.background = element_rect(color="white", size=0.5),
+        legend.text = element_text(color="black",size=11,family = "sans"),
+        legend.title = element_text(color="black",size=11,family = "sans",face="bold" ),
+        legend.title.align=0.5,
+        legend.position = "bottom",
+        legend.key = element_rect(fill = "white"))
 
 
-
-
-### Figure: Number of articles by country adoption yes=1, 0=no
+### Figure: Number of articles by country
 #Study locations
 sort(unique(PPC_ES$country))
-install.packages("countrycode")
+#install.packages("countrycode")
 library(countrycode)
-library(ggplot2)
-sort(unique(UN_subregion$Country.or.Area))
+library(readxl)
+
+UN_region <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_effect_size/UN_region.xlsx", sheet = "UN_subregion")%>%
+  mutate(Country_Name= if_else(Country_Name == "United States of America (The)","USA",
+                                  if_else(Country_Name =="United Republic of Tanzania (The)","Tanzania",
+                                          if_else(Country_Name =="Bolivia (Plurinational State of)","Bolivia",
+                                                  if_else(Country_Name == "Sudan (The)", "Sudan",
+                                                     if_else(Country_Name=="Republic of Moldova (The)", "Moldova",
+                                                             if_else(Country_Name=="Philippines (The)", "Philippines",
+                                                  Country_Name)))))))
+
+sort(unique(UN_region$Country_Name))
 
 PPC_ES$country[PPC_ES$country %in% "Vietnam, Thailand"] <- "Thailand"
 PPC_ES$country[PPC_ES$country %in% "Ethiopia, Ghana, Kenya, Malawi,  Mozambique, Nigeria, Tanzania, Uganda,  Zambia"] <- "Ethiopia"
+PPC_ES$country[PPC_ES$country %in% "Vietnam"] <- "Viet Nam"
 
-length(unique(PPC_ES$id))
+length(unique(PPC_ES$id)) #75
+length(unique(PPC_ES$country)) #28
+sort(unique(PPC_ES$country))
+names(UN_region)
 
 country<- PPC_ES%>%
   select("id", "country")%>%
+  left_join(UN_region, by=c("country" ="Country_Name"))%>%
   group_by(country)%>%
   mutate(n_articles = n_distinct(id))%>%
-  group_by(country,n_articles)%>%
-  tally()%>%
-  left_join(continent_list, by = "country") 
+  group_by(country,n_articles, UN_Regions,UN_sub_region,World_Bank_Income_Group_Combined_13)%>%
+  tally()
 
-country$continent[country$country %in% "Vietnam, Thailand"] <- "Asia"
-country$continent[country$country %in% "Ethiopia, Ghana, Kenya, Malawi,  Mozambique, Nigeria, Tanzania, Uganda,  Zambia"] <- "Africa"
+sort(unique(country$UN_Regions))
 
-length(sort(unique(PPC_ES$country))) #total number of countries #30
-length(sort(unique(country$continent)))  #total number of continents #4
-sort(unique(country$continent))
-sort(unique(country$country))
+length(sort(unique(country$country))) #total number of countries #28
 
 
 world <- ggplot2::map_data("world")%>%filter(region != "Antarctica")
 
 world_map <- ggplot2::map_data("world")%>%filter(region != "Antarctica")%>%
-  left_join(PPC_ES, by =  c("region" ="country"))%>%
+  left_join(country, by =  c("region" ="country"))%>%
+  mutate_all(~replace(., is.na(.), 0))%>%
+  mutate(n_articles_intervals= cut(n_articles,seq(0,8,2)))%>%
+  mutate(n_articles_intervals= if_else(n_articles_intervals=="(0,2]", "(1,2]",
+                                               n_articles_intervals))%>%
   mutate_all(~replace(., is.na(.), 0))
-mutate(region= if_else(continent=="0","",region))
+  
+#mutate(region= if_else(continent=="0","",region))
 #world_map$N_articles_frequency <- cut(world_map$n_articles,breaks = c(0,1,2,3,4,5,6,7))
 sort(unique(world_map$N_articles_frequency))
 View(world_map)
 
-
 sort(unique(world_map$UN_subregion))
+world_prueba <- table(cut(world_map$n_articles,seq(0,8,2)))
+world_prueba
 
-ggplot()+
-  geom_polygon(data = world_map,mapping = aes(x = long, y = lat,group = group,fill= n_articles),
-               color="grey10",size =0.05, show.legend = T)+
-  coord_fixed()+
-  scale_fill_gradient(low = "white", high = "turquoise4")+
+
+ggplot(data = world_map, aes(x = long, y = lat, group = group, fill = n_articles_intervals)) +
+  geom_polygon(color = "grey60", size = 0.05, show.legend = TRUE) +
+  coord_fixed() +
+  scale_fill_manual(labels = c("No data", "1-2", "3-4", "5-6","7-8"),
+                    breaks = c("0", "(1,2]", "(2,4]", "(4,6]","(6,8]"),
+                    values = c("white", "#B2DF8A", "#33A02C","#A6CEE3","#1F78B4"),
+                    guide = guide_legend(label.position = "top"))+
   labs(fill = "Number of articles")+
   theme(legend.position = "bottom",
-        legend.title =element_text(color="black",size=12, family = "sans",face="bold",
-                                   margin = margin(t = 0, r = 5, b = 0, l = 0)), 
+        legend.title =element_text(color="black",size=10, family = "sans",face="bold",
+                                   margin = margin(t = 0, r = 5, b = 0, l = 0)),
+        legend.text = element_text(color="black",size=10, family = "sans",face="bold"),
+        legend.key.width = unit(2, "cm"),
+        legend.key.height = unit(0.4, "cm"),
+        legend.text.align =1,
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
+        legend.spacing.x = unit(0, 'cm'),
         axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(color="black", size=9, family = "sans",face="bold",hjust = 0.01,vjust = -7),
-        plot.margin = margin(-7, 0, -4, 0, "cm"))+
+        plot.title = element_text(color="black", size=9, family = "sans",face="bold",hjust = 0.01,vjust = -7))+
+        #plot.margin = margin(0, 0, 0, 0, "cm"))+
   labs(x = NULL, y = NULL)
 
-intervention<- adoption_yes_no %>%
-  group_by(intervention_recla) %>%
-  summarise(n_articles = n_distinct(id))
+"#FFFF99"
 
 # Spider diagram showing the number of articles per factor, per system
 library(dplyr)
