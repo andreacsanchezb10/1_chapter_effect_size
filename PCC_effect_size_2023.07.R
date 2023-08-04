@@ -450,32 +450,39 @@ library(tidyverse)
 results<- results%>%
   group_by(factor_context) %>% 
   # within each group, sort rows according to value of factor_metric_unit
-  arrange(factor_metric_unit) %>% 
+  arrange(factor_context)%>%
   # create new column with rank (or row number) within each group
-  mutate(order_in_group=row_number()) %>% 
+  mutate(order_in_group=row_number())%>%
   # transform rank values into a factor
   mutate(order_in_group=as.factor(order_in_group)) %>%
   # remove grouping
-  ungroup()%>%
+  ungroup()
   mutate(factor_metric_unit =as.integer(factor_metric_unit))
 
+results$factor_metric_unit = with(results, reorder(factor_metric_unit, factor_context, median))
+  
+  
 str(results)
+
 
 #install.packages("pals")
 library(ggplot2)
 library(pals)
 
-ggplot(data=results, aes(y=factor_metric_unit,x=beta,xmin=ci.lb, xmax=ci.ub,
-                                colour = factor(factor_context)))+
+results%>%
+  ggplot(aes(y=factor_metric_unit,x=beta,xmin=ci.lb, xmax=ci.ub,
+                                colour = factor(factor_context) ))+
   geom_vline(xintercept=0, colour = "grey20",linetype = 1, linewidth=0.7)+
   geom_errorbar(width=0.2,size=1, position = (position_dodge(width = -0.2)),show.legend = FALSE)+
   geom_point(size = 4, position = (position_dodge(width = -0.2)),show.legend = FALSE)+
   geom_text(aes(label=significance, x=ci.ub+0.01, group=factor_metric_unit), vjust=0.7, hjust=-0.005,
             color="black", size=7, family="sans",face="bold",position = (position_dodge(width = -0.5)))+
   scale_colour_brewer(palette = "Paired")+
+  scale_y_discrete(limits=rev, labels= results$factor_metric_unit, breaks=results$factor_metric_unit,
+                   position = "left")+
   theme(axis.text.x = element_text(color="black",size=12,  family = "sans",
                                    margin = margin(t = 5, r = 0, b = 5, l = 0)),
-        axis.text.y = element_text(color="black",size=12, family = "sans",face="bold",
+        axis.text.y = element_text(color="black",size=11, family = "sans",
                                    margin = margin(t = 0, r = 5, b = 0, l = 0)),
         axis.title.y = element_blank(),
         axis.title.x = element_text(color="black",size=12, family = "sans",face="bold",
