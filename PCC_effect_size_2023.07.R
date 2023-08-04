@@ -581,6 +581,7 @@ ggplot(data = world_map, aes(x = long, y = lat, group = group, fill = n_articles
 "#FFFF99"
 
 # Spider diagram showing the number of articles per factor, per system
+install.packages("grafify")
 library(dplyr)
 library(tidyr)
 library(tibble)
@@ -590,156 +591,113 @@ library(ggplot2)
 library(stringr)
 library("grafify")
 
-sort(unique(factors$x_metric_recla))
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "access to agricultural extension"] <- "Access to extension"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "access or use of irrigation"] <- "Access to irrigation"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "access to agricultural training"] <- "Access to training"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "administrative region assessed"] <- "Region assessed"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "farm labour force (household members)"] <- "farm labour force"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "h size"] <- "household size"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "distance from house to farm"] <- "Distancen\ farm-house"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "hh association member"] <- "Association member"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "hh education"] <- "Farmer education"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "hh engaged in off-farm activities"] <- "off-farm activities"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "hh farming experience"] <- "Farming experience"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "hh gender"] <- "Farmer gender"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "hh is native"] <- "Farmer is native"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "secured land tenure"] <- "Land tenure"
-adoption_yes_no$x_metric_recla[adoption_yes_no$x_metric_recla%in% "hh off-farm income"] <- "off-farm income"
+sort(unique(PPC_ES$intervention_recla))
 
 
-factors<- adoption_yes_no %>%
-  mutate(x_metric_recla = if_else(is.na(x_metric_recla),"Others",x_metric_recla))%>%
-  mutate(x_metric_recla= str_to_sentence(x_metric_recla))%>%
-  group_by(x_metric_recla)%>%
+factors<- PPC_ES
+factors$intervention_recla_2[factors$intervention_recla%in% c("agroforestry and fallow",
+                                                              "crop rotation and intercropping",
+                                                              "intercropping or crop rotation")] <- "Combined practices"
+
+factors$intervention_recla_2[factors$intervention_recla%in% c("embedded seminatural infrastructures",
+                                                              "soil bund with contour cultivation")]<- "Embedded seminatural infrastructures"
+factors$intervention_recla_2[factors$intervention_recla%in% c("agroforestry")]<- "Agroforestry"
+factors$intervention_recla_2[factors$intervention_recla%in% c("crop rotation")]<- "Crop rotation"
+factors$intervention_recla_2[factors$intervention_recla%in% c("grazing cut and carry",
+                                                              "integrated crop-livestock")]<- "Crop-silvopasture systems"
+factors$intervention_recla_2[factors$intervention_recla%in% c("intercropping",
+                                                              "pull-push")]<- "Intercropping"
+factors$intervention_recla_2[factors$intervention_recla%in% c("land with temporary fallow")]<- "Fallow"
+
+
+sort(unique(factors$intervention_recla))
+sort(unique(factors$intervention_recla_2))
+
+factors_2<- factors%>%
+  mutate(factor_metric_unit= str_to_sentence(factor_metric_unit))%>%
+  group_by(factor_metric_unit)%>%
   mutate(n_articles = n_distinct(id))%>%ungroup()%>%
-  mutate(x_metric_recla = if_else(n_articles>=10,x_metric_recla,"Others"))%>%
-  group_by(x_metric_recla,intervention_recla)%>%
+  group_by(factor_metric_unit,intervention_recla_2)%>%
+  summarise(n_articles = n_distinct(id))
+  expand(intervention_recla_2)
+
+factors_1<- factors%>%
+  mutate(factor_metric_unit= str_to_sentence(factor_metric_unit))%>%
+  group_by(factor_metric_unit)%>%
+  mutate(n_articles = n_distinct(id))%>%ungroup()%>%
+  group_by(factor_metric_unit,intervention_recla_2)%>%
   summarise(n_articles = n_distinct(id))%>%
-  select(x_metric_recla,intervention_recla,n_articles)%>%
-  filter(x_metric_recla!= "Others")%>%
-  filter(intervention_recla!="contour farming")%>%
-  pivot_wider(names_from = x_metric_recla, values_from = "n_articles")%>%
-  mutate_if(is.numeric, ~replace(., is.na(.), 0))%>%
-  add_row(intervention_recla = "articles_total")%>%
-  mutate_if(is.numeric, ~replace(., is.na(.), 32))%>%
-  mutate(intervention_recla= c("Agroforestry", "Crop rotation", "Intercropping",
-                               "Integrated crop-livestock", "Mixed practices",
-                               "Fallow", "Pull-push", "Embedded semi-natural","articles_total"))
+  select(factor_metric_unit,intervention_recla_2,n_articles,n_articles)%>%
+  right_join(factors_2, by= c("factor_metric_unit","intervention_recla_2"))
+  pivot_wider(names_from = factor_metric_unit, values_from = "n_articles")%>%
+  mutate_if(is.numeric, ~replace(., is.na(.), 0))
+
+ 
+
+factors_2 <- rbind(factors_2, min, max)
 
 
-p_data <- factors %>% rename(group = "intervention_recla")
+# Demo data
+exam_scores <- data.frame(
+  row.names = c("Student.1", "Student.2", "Student.3"),
+  Biology = c(7.9, 3.9, 9.4),
+  Physics = c(10, 20, 0),
+  Maths = c(3.7, 11.5, 2.5),
+  Sport = c(8.7, 20, 4),
+  English = c(7.9, 7.2, 12.4),
+  Geography = c(6.4, 10.5, 6.5),
+  Art = c(2.4, 0.2, 9.8),
+  Programming = c(0, 0, 20),
+  Music = c(20, 20, 20)
+)
+exam_scores
 
-circle_coords <- function(r, n_axis = ncol(p_data) - 1){
-  fi <- seq(0, 2*pi, (1/n_axis)*2*pi) + pi/2
-  x <- r*cos(fi)
-  y <- r*sin(fi)
-  
-  tibble(x, y, r)
-}
-central_distance <- 0.15
+install.packages("fmsb")
 
-step_1 <- map_df(seq(0, 1, 0.25) + central_distance, circle_coords) %>%
-  ggplot(aes(x, y)) +
-  geom_polygon(data = circle_coords(1 + central_distance), 
-               alpha = 1, fill = "gray97") +
-  geom_path(aes(group = r), lty = 2, alpha = 0.5) +
-  theme_void()+
-  theme(plot.margin = margin(1,1,1.5,1.2, "cm"))
-step_1
+library(fmsb)
 
-axis_coords <- function(n_axis){
-  fi <- seq(0, (1 - 1/n_axis)*2*pi, (1/n_axis)*2*pi) + pi/2
-  x1 <- central_distance*cos(fi)
-  y1 <- central_distance*sin(fi)
-  x2 <- (1 + central_distance)*cos(fi)
-  y2 <- (1 + central_distance)*sin(fi)
-  
-  tibble(x = c(x1, x2), y = c(y1, y2), id = rep(1:n_axis, 2))
-}
+# Define the variable ranges: maximum and minimum
+max_min <- data.frame(
+  Biology = c(20, 0), Physics = c(20, 0), Maths = c(20, 0),
+  Sport = c(20, 0), English = c(20, 0), Geography = c(20, 0),
+  Art = c(20, 0), Programming = c(20, 0), Music = c(20, 0)
+)
+rownames(max_min) <- c("Max", "Min")
 
-step_2 <- step_1 + geom_line(data = axis_coords(ncol(p_data) - 1), 
-                             aes(x, y, group = id), alpha = 0.3)
-step_2
+# Bind the variable ranges to the data
+df <- rbind(max_min, exam_scores)
+df
 
-text_data <- p_data %>%
-  select(-group) %>%
-  map_df(~ min(.) + (max(.) - min(.)) * seq(0, 1, 0.25)) %>%
-  mutate(r = seq(0, 1, 0.25)) %>%
-  pivot_longer(-r, names_to = "parameter", values_to = "value")
 
-text_coords <- function(r, n_axis = ncol(p_data) - 1){
-  fi <- seq(0, (1 - 1/n_axis)*2*pi, (1/n_axis)*2*pi) + pi/2 + 0.01*2*pi/r
-  x <- r*cos(fi)
-  y <- r*sin(fi)
-  
-  tibble(x, y, r = r - central_distance)
-}
-
-labels_data <- map_df(seq(0, 1, 0.25) + central_distance, text_coords) %>%
-  bind_cols(text_data %>% select(-r))%>%
-  filter(value<=45)%>%
-  mutate(value= if_else(parameter == "Access to credit", value, NA))
-
-step_3 <- step_2 + 
-  geom_text(data = labels_data, aes(x, y, label = value), alpha = 0.65,fontface = "bold") +
-  geom_text(data = text_coords(1 + central_distance + 0.17), 
-            aes(x, y), label = labels_data$parameter[1:(ncol(p_data)-1)],fontface = "bold")
-
-step_3
-
-rescaled_coords <- function(r, n_axis){
-  fi <- seq(0, 2*pi, (1/n_axis)*2*pi) + pi/2
-  tibble(r, fi) %>% mutate(x = r*cos(fi), y = r*sin(fi)) %>% select(-fi)
+# Reduce plot margin using par()
+create_beautiful_radarchart <- function(data, color = "#00AFBB", 
+                                        vlabels = colnames(data), vlcex = 0.7,
+                                        caxislabels = NULL, title = NULL, ...){
+  radarchart(
+    data, axistype = 1,
+    # Customize the polygon
+    pcol = color, pfcol = scales::alpha(color, 0.5), plwd = 2, plty = 1,
+    # Customize the grid
+    cglcol = "grey", cglty = 1, cglwd = 0.8,
+    # Customize the axis
+    axislabcol = "grey", 
+    # Variable labels
+    vlcex = vlcex, vlabels = vlabels,
+    caxislabels = caxislabels, title = title, ...
+  )
 }
 
-rescaled_data <- p_data %>% 
-  mutate(across(-group, rescale))%>%
-  mutate(copy = pull(., 2)) %>% 
-  pivot_longer(-group, names_to = "parameter", values_to = "value") %>%
-  group_by(group) %>%
-  mutate(coords = rescaled_coords(value + central_distance, ncol(p_data) - 1)) %>%
-  unnest%>%
-  filter(group!="articles_total")
-
-typeof(rescaled_data)
-
-step_4<-step_3 + 
-  geom_point(data = rescaled_data, 
-             aes(x, y, group = group, col = group), 
-             size = 3) +
-  geom_path(data = rescaled_data, 
-            aes(x, y, group = group, col = group), 
-            size = 1)+
-  scale_colour_grafify()+
-  labs(col = "Diversified farming systems")+
-  theme(legend.position = "none")
-legend.title =element_text(color="black",size=12, family = "sans",face="bold",
-                           margin = margin(t = 0, r = 5, b = 0, l = 0)),
-plot.margin = margin(1,1,1.5,1.2, "cm"))
-step_4
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+op <- par(mar = c(1, 2, 2, 2))
+# Create the radar charts
+create_beautiful_radarchart(
+  data = df, caxislabels = c(0, 5, 10, 15, 20),
+  color = c("#00AFBB", "#E7B800", "#FC4E07")
+)
+# Add an horizontal legend
+legend(
+  x = "bottom", legend = rownames(df[-c(1,2),]), horiz = TRUE,
+  bty = "n", pch = 20 , col = c("#00AFBB", "#E7B800", "#FC4E07"),
+  text.col = "black", cex = 1, pt.cex = 1.5
+)
+par(op)
 
