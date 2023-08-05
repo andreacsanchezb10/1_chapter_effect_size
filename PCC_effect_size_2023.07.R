@@ -457,7 +457,6 @@ library(pals)
 library(RColorBrewer)
 
 dark2_palette <- brewer.pal(n = 8, name = "Accent")
-
 dark2_palette
 
 
@@ -618,86 +617,48 @@ factors_2<- factors%>%
   group_by(factor_metric_unit)%>%
   mutate(n_articles = n_distinct(id))%>%ungroup()%>%
   group_by(factor_metric_unit,intervention_recla_2)%>%
-  summarise(n_articles = n_distinct(id))
-  expand(intervention_recla_2)
-
-factors_1<- factors%>%
-  mutate(factor_metric_unit= str_to_sentence(factor_metric_unit))%>%
-  group_by(factor_metric_unit)%>%
-  mutate(n_articles = n_distinct(id))%>%ungroup()%>%
-  group_by(factor_metric_unit,intervention_recla_2)%>%
   summarise(n_articles = n_distinct(id))%>%
-  select(factor_metric_unit,intervention_recla_2,n_articles,n_articles)%>%
-  right_join(factors_2, by= c("factor_metric_unit","intervention_recla_2"))
+  select(factor_metric_unit,intervention_recla_2,n_articles)%>%
   pivot_wider(names_from = factor_metric_unit, values_from = "n_articles")%>%
+  mutate_if(is.numeric, ~replace(., is.na(.), 0))%>%
+  select(!intervention_recla_2)
+
+
+factors_2<- factors_2%>%
+  add_row(.before = 1)%>%
+  mutate_if(is.numeric, ~replace(., is.na(.), 21))%>%
+  add_row(.before = 2)%>%
   mutate_if(is.numeric, ~replace(., is.na(.), 0))
-
- 
-
-factors_2 <- rbind(factors_2, min, max)
-
-
-# Demo data
-exam_scores <- data.frame(
-  row.names = c("Student.1", "Student.2", "Student.3"),
-  Biology = c(7.9, 3.9, 9.4),
-  Physics = c(10, 20, 0),
-  Maths = c(3.7, 11.5, 2.5),
-  Sport = c(8.7, 20, 4),
-  English = c(7.9, 7.2, 12.4),
-  Geography = c(6.4, 10.5, 6.5),
-  Art = c(2.4, 0.2, 9.8),
-  Programming = c(0, 0, 20),
-  Music = c(20, 20, 20)
-)
-exam_scores
-
-install.packages("fmsb")
-
+  
+#install.packages("fmsb")
 library(fmsb)
 
-# Define the variable ranges: maximum and minimum
-max_min <- data.frame(
-  Biology = c(20, 0), Physics = c(20, 0), Maths = c(20, 0),
-  Sport = c(20, 0), English = c(20, 0), Geography = c(20, 0),
-  Art = c(20, 0), Programming = c(20, 0), Music = c(20, 0)
+dark2_palette <- brewer.pal(n = 8, name = "Set1")
+dark2_palette
+
+
+# Create data: note in High school for several students
+set.seed(99)
+data <- as.data.frame(matrix( sample( 0:20 , 15 , replace=F) , ncol=5))
+colnames(data) <- c("math" , "english" , "biology" , "music" , "R-coding" )
+rownames(data) <- paste("mister" , letters[1:3] , sep="-")
+
+# To use the fmsb package, I have to add 2 lines to the dataframe: the max and min of each variable to show on the plot!
+data <- rbind(rep(20,5) , rep(0,5) , data)
+
+# Color vector
+colors_border=c( "#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33", "#A65628" )
+
+# plot with default options:
+radarchart( factors_2  , axistype=1 , 
+            #custom polygon
+            pcol=colors_border  , plwd=4 , plty=1,
+            #custom the grid
+            cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,25,5), cglwd=0.8,
+            #custom labels
+            vlcex=0.8 
 )
-rownames(max_min) <- c("Max", "Min")
 
-# Bind the variable ranges to the data
-df <- rbind(max_min, exam_scores)
-df
-
-
-# Reduce plot margin using par()
-create_beautiful_radarchart <- function(data, color = "#00AFBB", 
-                                        vlabels = colnames(data), vlcex = 0.7,
-                                        caxislabels = NULL, title = NULL, ...){
-  radarchart(
-    data, axistype = 1,
-    # Customize the polygon
-    pcol = color, pfcol = scales::alpha(color, 0.5), plwd = 2, plty = 1,
-    # Customize the grid
-    cglcol = "grey", cglty = 1, cglwd = 0.8,
-    # Customize the axis
-    axislabcol = "grey", 
-    # Variable labels
-    vlcex = vlcex, vlabels = vlabels,
-    caxislabels = caxislabels, title = title, ...
-  )
-}
-
-op <- par(mar = c(1, 2, 2, 2))
-# Create the radar charts
-create_beautiful_radarchart(
-  data = df, caxislabels = c(0, 5, 10, 15, 20),
-  color = c("#00AFBB", "#E7B800", "#FC4E07")
-)
-# Add an horizontal legend
-legend(
-  x = "bottom", legend = rownames(df[-c(1,2),]), horiz = TRUE,
-  bty = "n", pch = 20 , col = c("#00AFBB", "#E7B800", "#FC4E07"),
-  text.col = "black", cex = 1, pt.cex = 1.5
-)
-par(op)
-
+# Add a legend
+legend(x=1.2, y=1.3, legend = rownames(factors_2[-c(1,2),]), bty = "n", pch=20 , col=colors_border ,
+       text.col = "grey20", cex=1.2, pt.cex=3)
