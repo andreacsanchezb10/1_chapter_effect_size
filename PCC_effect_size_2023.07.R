@@ -12,12 +12,13 @@ library(dplyr)
 #"h size"
 
 ## Household head Age (years)----
+table(PCC_hh_age$factor_metric_unit)
 PCC_hh_age<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_age.csv")%>%
   filter(factor_metric_unit == "hh age (years)")
 
 str(PCC_hh_age)
 sort(unique(PCC_hh_age$factor_metric_unit))
-length(sort(unique(PCC_hh_age$id))) # Number of articles 54
+length(sort(unique(PCC_hh_age$id))) # Number of articles 60
 
 ## Household head Gender (1= male, 0= female)----
 PCC_hh_gender<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_gender.csv")%>%
@@ -25,7 +26,7 @@ PCC_hh_gender<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Cha
 
 str(PCC_hh_gender)
 sort(unique(PCC_hh_gender$factor_metric_unit))
-length(sort(unique(PCC_hh_gender$id))) # Number of articles 48
+length(sort(unique(PCC_hh_gender$id))) # Number of articles 52
 
 ## Household head Education (years) ---- 
 PCC_hh_education<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_education.csv")%>%
@@ -33,7 +34,7 @@ PCC_hh_education<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_
 
 str(PCC_hh_education)
 sort(unique(PCC_hh_education$factor_metric_unit))
-length(sort(unique(PCC_hh_education$id))) # Number of articles 32
+length(sort(unique(PCC_hh_education$id))) # Number of articles 33
 
 ## Household size (number of people) ----
 PCC_h_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_h_size.csv")%>%
@@ -41,7 +42,7 @@ PCC_h_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapte
 
 str(PCC_h_size)
 sort(unique(PCC_h_size$factor_metric_unit))
-length(sort(unique(PCC_h_size$id))) # Number of articles 37
+length(sort(unique(PCC_h_size$id))) # Number of articles 39
 
 ##### Economic and financial capital ------
 #"access to credit"
@@ -53,7 +54,7 @@ PCC_access_credit<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1
 
 str(PCC_access_credit)
 sort(unique(PCC_access_credit$factor_metric_unit))
-length(sort(unique(PCC_access_credit$id))) # Number of articles 25
+length(sort(unique(PCC_access_credit$id))) # Number of articles 28
 
 ## Household off-farm income ----
 PCC_off_farm_income<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_off_farm_income.csv")%>%
@@ -61,7 +62,7 @@ PCC_off_farm_income<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents
 
 str(PCC_off_farm_income)
 sort(unique(PCC_off_farm_income$factor_metric_unit))
-length(sort(unique(PCC_off_farm_income$id))) # Number of articles 27
+length(sort(unique(PCC_off_farm_income$id))) # Number of articles 30
 
 ##### Information ------
 #"hh farming experience"
@@ -73,7 +74,7 @@ PCC_hh_farming_experience<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Doc
 
 str(PCC_hh_farming_experience)
 sort(unique(PCC_hh_farming_experience$factor_metric_unit))
-length(sort(unique(PCC_hh_farming_experience$id))) # Number of articles 17
+length(sort(unique(PCC_hh_farming_experience$id))) # Number of articles 19
 
 ## Household head association member ----
 PCC_hh_association_member<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_association_member.csv")%>%
@@ -81,7 +82,7 @@ PCC_hh_association_member<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Doc
 
 str(PCC_hh_association_member)
 sort(unique(PCC_hh_association_member$factor_metric_unit))
-length(sort(unique(PCC_hh_association_member$id))) # Number of articles 34
+length(sort(unique(PCC_hh_association_member$id))) # Number of articles 37
 
 ####### FARM CHARACTERISTICS -----
 ##### Social capital ------
@@ -93,14 +94,14 @@ PCC_farm_labour<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_C
 
 str(PCC_farm_labour)
 sort(unique(PCC_farm_labour$factor_metric_unit))
-length(sort(unique(PCC_farm_labour$id))) # Number of articles 15
+length(sort(unique(PCC_farm_labour$id))) # Number of articles 18
 
 ##### Physical capital ------
 #"secured land tenure"
 #"livestock ownership"
 
 ## Secure land tenure----
-PCC_land_tenure_security<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_land_tenure_security.csv")%>%
+PCC_land_tenure_security<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_land_tenure_security.csv")
   filter(factor_metric_unit == "secured land tenure (1= secure, 0= otherwise)")
 
 str(PCC_land_tenure_security)
