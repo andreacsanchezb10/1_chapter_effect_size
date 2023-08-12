@@ -9,9 +9,11 @@ library(stringr)
 ####### FACTORS -------
 ## Access to credit (1= yes, 0= no) ----
 PCC_access_credit<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_access_credit.csv")%>%
-  filter(factor_metric_unit == "access to credit (1= yes, 0= no)")%>%
+  filter(factor_metric_unit == "Access to credit (1= yes, 0= no)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_access_credit)
 sort(unique(PCC_access_credit$factor_metric_unit))
@@ -19,9 +21,11 @@ length(sort(unique(PCC_access_credit$id))) # Number of articles 28
 
 ## Access to agricultural extension ----
 PCC_agricultural_extension<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_agricultural_extension.csv")%>%
-  filter(factor_metric_unit == "agricultural extension (1= yes, 0= no)")%>%
+  filter(factor_metric_unit == "Agricultural extension (1= yes, 0= no)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_agricultural_extension)
 sort(unique(PCC_agricultural_extension$factor_metric_unit))
@@ -29,9 +33,11 @@ length(sort(unique(PCC_agricultural_extension$id))) # Number of articles 29
 
 ## Agricultural training ----
 PCC_agricultural_training<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_agricultural_training.csv")%>%
-  filter(factor_metric_unit == "agricultural training (1= yes, 0= no)")%>%
+  filter(factor_metric_unit == "Agricultural training (1= yes, 0= no)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_agricultural_training)
 sort(unique(PCC_agricultural_training$factor_metric_unit))
@@ -40,11 +46,13 @@ table(PCC_agricultural_training$factor_metric_unit)
 
 ## Distance from farm to house (Km, minutes) ----
 PCC_distance_farm<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_farm.csv")%>%
-  filter(factor_metric_unit == "distance farm-house (km)"|
-           factor_metric_unit =="distance farm-house (minutes)")%>%
+  filter(factor_metric_unit == "Distance farm-house (km)"|
+           factor_metric_unit =="Distance farm-house (minutes)")%>%
   mutate(factor_sub_class= as.character(factor_sub_class),
          variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_distance_farm)
 sort(unique(PCC_distance_farm$factor_metric_unit))
@@ -53,10 +61,12 @@ table(PCC_distance_farm$factor_metric_unit)
 
 ## Distance to market AND Distance to input market (Km, minutes) ----
 PCC_distance_market<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_market.csv")%>%
-  filter(factor_metric_unit == "distance to market (km)" |
-           factor_metric_unit == "distance to market (minutes)")%>%
+  filter(factor_metric_unit == "Distance to market (km)" |
+           factor_metric_unit == "Distance to market (minutes)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_distance_market)
 sort(unique(PCC_distance_market$factor_metric_unit))
@@ -65,10 +75,12 @@ table(PCC_distance_market$factor_metric_unit)
 
 ## Distance to road (Km, minutes) ----
 PCC_distance_road<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_road.csv")%>%
-  filter(factor_metric_unit == "distance to road (km)"|
-           factor_metric_unit =="distance to road (minutes)")%>%
+  filter(factor_metric_unit == "Distance to road (km)"|
+           factor_metric_unit =="Distance to road (minutes)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 
 str(PCC_distance_road)
@@ -78,10 +90,12 @@ table(PCC_distance_road$factor_metric_unit)
 
 ## Farm altitude (m.a.s.l.) ----
 PCC_farm_altitude<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_altitude.csv")%>%
-  filter(factor_metric_unit == "farm altitude (m.a.s.l.)")%>%
+  filter(factor_metric_unit == "Farm altitude (m.a.s.l.)")%>%
   mutate(factor_sub_class= as.character(factor_sub_class),
          variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_farm_altitude)
 sort(unique(PCC_farm_altitude$factor_metric_unit))
@@ -89,9 +103,11 @@ length(sort(unique(PCC_farm_altitude$id))) # Number of articles 5
 
 ## Farm labour force (number of people) ----
 PCC_farm_labour<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_labour.csv")%>%
-  filter(factor_metric_unit == "farm labour force (number of people)")%>%
+  filter(factor_metric_unit == "Farm labour force (number of people)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_farm_labour)
 sort(unique(PCC_farm_labour$factor_metric_unit))
@@ -99,9 +115,11 @@ length(sort(unique(PCC_farm_labour$id))) # Number of articles 18
 
 ## Farm size (ha)----
 PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_size.csv")%>%
-  filter(factor_metric_unit == "farm size (ha)")%>%
+  filter(factor_metric_unit == "Farm size (ha)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_farm_size)
 sort(unique(PCC_farm_size$factor_metric_unit))
@@ -109,19 +127,24 @@ length(sort(unique(PCC_farm_size$id))) # Number of articles 53
 
 ## Household asset ----
 PCC_h_asset<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_h_asset.csv")%>%
-  filter(factor_metric_unit == "h asset (USD)")%>%
+  filter(factor_metric_unit == "H asset (country currency)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_h_asset)
 sort(unique(PCC_h_asset$factor_metric_unit))
+table(PCC_h_asset$factor_metric_unit)
 length(sort(unique(PCC_h_asset$id))) # Number of articles 22
 
 ## Household size (number of people) ----
 PCC_h_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_h_size.csv")%>%
-  filter(factor_metric_unit == "h size (number of people)")%>%
+  filter(factor_metric_unit == "H size (number of people)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_h_size)
 sort(unique(PCC_h_size$factor_metric_unit))
@@ -129,9 +152,11 @@ length(sort(unique(PCC_h_size$id))) # Number of articles 39
 
 ## Household head Age (years)----
 PCC_hh_age<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_age.csv")%>%
-  filter(factor_metric_unit == "hh age (years)")%>%
+  filter(factor_metric_unit == "HH age (years)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_hh_age)
 sort(unique(PCC_hh_age$factor_metric_unit))
@@ -139,9 +164,11 @@ length(sort(unique(PCC_hh_age$id))) # Number of articles 60
 
 ## Household head association member (1= yes, 0= no) ----
 PCC_hh_association_member<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_association_member.csv")%>%
-  filter(factor_metric_unit == "hh association member (1= yes, 0= no)")%>%
+  filter(factor_metric_unit == "HH association member (1= yes, 0= no)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_hh_association_member)
 sort(unique(PCC_hh_association_member$factor_metric_unit))
@@ -149,9 +176,11 @@ length(sort(unique(PCC_hh_association_member$id))) # Number of articles 37
 
 ## Household head Education (years) ---- 
 PCC_hh_education<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_education.csv")%>%
-  filter(factor_metric_unit == "hh education (years)")%>%
+  filter(factor_metric_unit == "HH education (years)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 
 str(PCC_hh_education)
@@ -160,9 +189,11 @@ length(sort(unique(PCC_hh_education$id))) # Number of articles 33
 
 ## Household head farming experience (years) ----
 PCC_hh_farming_experience<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_farming_experience.csv")%>%
-  filter(factor_metric_unit == "hh farming experience (years)")%>%
+  filter(factor_metric_unit == "HH farming experience (years)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_hh_farming_experience)
 sort(unique(PCC_hh_farming_experience$factor_metric_unit))
@@ -170,9 +201,11 @@ length(sort(unique(PCC_hh_farming_experience$id))) # Number of articles 19
 
 ## Household head Gender (1= male, 0= female)----
 PCC_hh_gender<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_gender.csv")%>%
-  filter(factor_metric_unit == "hh gender (1= male, 0= female)")%>%
+  filter(factor_metric_unit == "HH gender (1= male, 0= female)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 
 str(PCC_hh_gender)
@@ -181,9 +214,11 @@ length(sort(unique(PCC_hh_gender$id))) # Number of articles 52
 
 ## Household head is native (1= native, 0= otherwise) ---- 
 PCC_hh_native<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_native.csv")%>%
-  filter(factor_metric_unit == "hh is native (1= native, 0= otherwise)")%>%
+  filter(factor_metric_unit == "HH is native (1= native, 0= otherwise)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_hh_native)
 sort(unique(PCC_hh_native$factor_metric_unit))
@@ -191,9 +226,11 @@ length(sort(unique(PCC_hh_native$id))) # Number of articles 9
 
 ## Irrigation (1= secure, 0= otherwise) ----
 PCC_irrigation<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_irrigation.csv")%>%
-  filter(factor_metric_unit == "irrigation (1= yes, 0= no)")%>%
+  filter(factor_metric_unit == "Irrigation (1= yes, 0= no)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_irrigation)
 sort(unique(PCC_irrigation$factor_metric_unit))
@@ -202,9 +239,11 @@ table(PCC_irrigation$factor_metric_unit)
 
 ## Land tenure security (1= secure, 0= otherwise) ----
 PCC_land_tenure_security<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_land_tenure_security.csv")%>%
-  filter(factor_metric_unit == "land tenure security (1= secure, 0= otherwise)")%>%
+  filter(factor_metric_unit == "Land tenure security (1= secure, 0= otherwise)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_land_tenure_security)
 sort(unique(PCC_land_tenure_security$factor_metric_unit))
@@ -213,10 +252,12 @@ length(sort(unique(PCC_land_tenure_security$id))) # Number of articles 27
 
 ## Livestock ownership (TLU; (Units of animal owned))----
 PCC_livestock_ownership<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_livestock_ownership.csv")%>%
-  filter(factor_metric_unit == "livestock owned (TLU)"| 
-           factor_metric_unit == "livestock owned (Units of animal owned)")%>%
+  filter(factor_metric_unit == "Livestock owned (TLU)"| 
+           factor_metric_unit == "Livestock owned (Units of animal owned)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_livestock_ownership)
 sort(unique(PCC_livestock_ownership$factor_metric_unit))
@@ -225,9 +266,11 @@ table(PCC_livestock_ownership$factor_metric_unit)
 
 ## Household off-farm income (1= yes, 0= no) ----
 PCC_off_farm_income<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_off_farm_income.csv")%>%
-  filter(factor_metric_unit == "hh off-farm income (1= yes, 0= no)")%>%
+  filter(factor_metric_unit == "HH off-farm income (1= yes, 0= no)")%>%
   mutate(variance_value=as.character(variance_value),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_off_farm_income)
 sort(unique(PCC_off_farm_income$factor_metric_unit))
@@ -236,10 +279,12 @@ table(PCC_off_farm_income$factor_metric_unit)
 
 ## Precipitation (mm) ----
 PCC_precipitation<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_precipitation.csv")%>%
-  filter(factor_metric_unit == "precipitation (mm)")%>%
+  filter(factor_metric_unit == "Precipitation (mm)")%>%
   mutate(variance_value=as.character(variance_value),
          factor_sub_class= as.character(factor_sub_class),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
   
 
 str(PCC_precipitation)
@@ -248,10 +293,12 @@ length(sort(unique(PCC_precipitation$id))) # Number of articles 6
 
 ## Soil erosion ----
 PCC_soil_erosion<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_soil_erosion.csv")%>%
-  filter(factor_metric_unit == "soil erosion (1 = major problem, 2 = minor problem, 3 = not a problem)")%>%
+  filter(factor_metric_unit == "Soil erosion (1 = major problem, 2 = minor problem, 3 = not a problem)")%>%
   mutate(variance_value=as.character(variance_value),
          factor_sub_class= as.character(factor_sub_class),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_soil_erosion)
 sort(unique(PCC_soil_erosion$factor_metric_unit))
@@ -260,10 +307,12 @@ table(PCC_soil_erosion$factor_metric_unit)
 
 ## Soil fertility ----
 PCC_soil_fertility<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_soil_fertility.csv")%>%
-  filter(factor_metric_unit == "soil fertility (1= high fertility, 0= otherwise)")%>%
+  filter(factor_metric_unit == "Soil fertility (1= high fertility, 0= otherwise)")%>%
   mutate(variance_value=as.character(variance_value),
          factor_sub_class= as.character(factor_sub_class),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
   
 
 str(PCC_soil_fertility)
@@ -273,10 +322,12 @@ table(PCC_soil_fertility$factor_metric_unit)
 
 ## Soil slope  ----
 PCC_soil_slope<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_soil_slope.csv")%>%
-  filter(factor_metric_unit == "soil slope (1= steep slope, 0= otherwise)")%>%
+  filter(factor_metric_unit == "Soil slope (1= steep slope, 0= otherwise)")%>%
   mutate(variance_value=as.character(variance_value),
          factor_sub_class= as.character(factor_sub_class),
-         intervention_recla_detail_3= as.character(intervention_recla_detail_3))
+         intervention_recla_detail_3= as.character(intervention_recla_detail_3),
+         intervention_recla_detail_2= as.character(intervention_recla_detail_2),
+         intervention_recla_detail_4= as.character(intervention_recla_detail_4))
 
 str(PCC_soil_slope)
 sort(unique(PCC_soil_slope$factor_metric_unit))
@@ -341,26 +392,17 @@ names(PCC_data)
 sort(unique(PCC_data$factor_context))
 sort(unique(PCC_data$intervention_recla))
 
-PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("h size (number of people)",
-                                                           "hh association member (1= yes, 0= no)")]<-"Farmer characteristics"
+PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("H size (number of people)",
+                                                           "HH association member (1= yes, 0= no)")]<-"Farmer characteristics"
 
-PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("irrigation (1= yes, 0= no)",
-                                                           "soil slope (1= steep slope, 0= otherwise)")]<-"Farm characteristics"
+PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("Irrigation (1= yes, 0= no)",
+                                                           "Soil slope (1= steep slope, 0= otherwise)",
+                                                           "Land tenure security (1= secure, 0= otherwise)")]<-"Farm characteristics"
 
-PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("access to credit (1= yes, 0= no)",
-                                                           "precipitation (mm)")]<-"Context characteristics"                                                          
+PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("Access to credit (1= yes, 0= no)",
+                                                           "Precipitation (mm)")]<-"Context characteristics"                                                          
                                                            
-PCC_data$factor_metric_unit<-stringr::str_to_sentence(PCC_data$factor_metric_unit)
 PCC_data$intervention_recla<-stringr::str_to_sentence(PCC_data$intervention_recla)
-PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh age (years)"]<- "HH age (years)"
-PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh association member (1= yes, 0= no)"]<- "HH association member (1= yes, 0= no)"
-PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh education (years)"]<- "HH education (years)"
-PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh gender (1= male, 0= female)"]<- "HH gender (1= male, 0= female)"
-PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh farming experience (years)"]<- "HH farming experience (years)"
-PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh off-farm income (1= yes, 0= no)"]<- "Off-farm income (1= yes, 0= no)"
-PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh is native (1= native, 0= otherwise)"]<- "HH is native (1= native, 0= otherwise)"
-PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Livestock owned (tlu)"]<- "Livestock owned (TLU)"
-
 
 length(sort(unique(PCC_data$id))) # Number of articles 87
 table(PCC_data$factor)
@@ -375,7 +417,6 @@ PCC_data<-PCC_data
   
 sort(unique(PCC_data$intervention_recla))
 table(PCC_data$intervention_recla_detail_1)
-
 
 
 ### Filter articles for meta-analysis ----
@@ -577,8 +618,6 @@ articles_count <- PPC_ES %>%
   group_by(factor_metric_unit, factor_context) %>%
   summarise(n_articles = n_distinct(id))
 
-#install.packages("string")
-
 results<- meta_regression_results%>%
   mutate(beta = as.numeric(beta))%>%
   left_join(articles_count, by = "factor_metric_unit")%>%
@@ -605,7 +644,6 @@ library(RColorBrewer)
 
 dark2_palette <- brewer.pal(n = 8, name = "Accent")
 dark2_palette
-
 
 ggplot(data=results, aes(y=factor_metric_unit,x=beta,xmin=ci.lb, xmax=ci.ub,
                                 colour = factor(factor_context) ))+
@@ -651,18 +689,38 @@ ES_system_fator <- PPC_ES %>%
   mutate(percent_factor_system= (es_system_factor/es_factor)*100)
 
 
-ES_system_fator%>%
-ggplot(aes(x = factor(factor_metric_unit, levels = unique(factor_metric_unit)),
-           y = percent_factor_system, fill = intervention_recla)) +
-  geom_col() +
+ggplot(data=ES_system_fator)+
+  geom_col(aes(x = factor(factor_metric_unit, levels = unique(factor_metric_unit)),
+           y = percent_factor_system, fill = intervention_recla),
+           colour="grey50") +
+  scale_y_discrete(limits = c(0,25, 50, 75, 100), expand = c(0, 5)) +
+  scale_fill_brewer(palette = "Paired", name= "Diversified farming systems")+
+  labs(y= "Proportion of effect sizes", x = "")+
+  theme_bw() +
+  geom_text(data = ES_factor,
+            aes(x = factor(factor_metric_unit, levels = unique(factor_metric_unit)),
+                y= 105,label = es_factor),color="black", size=4, family="sans",fontface ="bold")+
   coord_flip()+
-  scale_fill_brewer(palette = "Paired", name= "Factors")
-
+  theme(axis.text.x = element_text(color="black",size=12,  family = "sans",
+                                   margin = margin(t = 5, r = 0, b = 5, l = 0)),
+        axis.text.y = element_text(color="black",size=11, family = "sans",
+                                   margin = margin(t = 0, r = 5, b = 0, l = 0)),
+        axis.title.y = element_blank(),
+        axis.title.x = element_text(color="black",size=12, family = "sans",face="bold",
+                                    margin = margin(t = 0, r = 5, b = 0, l = 0)),
+        plot.background = element_rect(fill = "White", color = "White"),
+        panel.background = element_rect(fill = "White", color = "White"),
+        panel.spacing = unit(2.5, "lines"),
+        panel.grid.major  = element_line(color = "white",size = 0.6),
+        axis.line = element_line(colour = "black"),
+        legend.box.background = element_rect(color="white", size=0.5),
+        legend.text = element_text(color="black",size=11,family = "sans"),
+        legend.title = element_text(color="black",size=11,family = "sans",face="bold" ),
+        legend.title.align=0.5,
+        #legend.position = "bottom",
+        legend.key = element_rect(fill = "white"))
   
-
-
-
-
+ 
 ### Figure: Number of articles by country
 #Study locations
 sort(unique(PPC_ES$country))
@@ -685,9 +743,9 @@ PPC_ES$country[PPC_ES$country %in% "Vietnam, Thailand"] <- "Thailand"
 PPC_ES$country[PPC_ES$country %in% "Ethiopia, Ghana, Kenya, Malawi,  Mozambique, Nigeria, Tanzania, Uganda,  Zambia"] <- "Ethiopia"
 PPC_ES$country[PPC_ES$country %in% "Vietnam"] <- "Viet Nam"
 
-length(unique(PPC_ES$id)) #75
-length(unique(PPC_ES$country)) #28
-sort(unique(PPC_ES$country))
+length(unique(PPC_ES$id)) #83
+length(unique(PPC_ES$country)) #29
+sort(unique(PPC_ES$country)) 
 names(UN_region)
 
 country<- PPC_ES%>%
@@ -700,7 +758,7 @@ country<- PPC_ES%>%
 
 sort(unique(country$UN_Regions))
 
-length(sort(unique(country$country))) #total number of countries #28
+length(sort(unique(country$country))) #total number of countries #29
 
 
 world <- ggplot2::map_data("world")%>%filter(region != "Antarctica")
