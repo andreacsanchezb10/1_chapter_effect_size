@@ -339,6 +339,8 @@ PCC_data<- bind_rows(PCC_access_credit,
 table(PCC_data$factor_metric_unit)
 names(PCC_data)
 sort(unique(PCC_data$factor_context))
+sort(unique(PCC_data$intervention_recla))
+
 PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("h size (number of people)",
                                                            "hh association member (1= yes, 0= no)")]<-"Farmer characteristics"
 
@@ -348,9 +350,6 @@ PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("irrigation (1= yes, 
 PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("access to credit (1= yes, 0= no)",
                                                            "precipitation (mm)")]<-"Context characteristics"                                                          
                                                            
-PCC_data$factor_context[PCC_data$factor_context %in% c("farm")]<-"Farm characteristics"         
-PCC_data$factor_context[PCC_data$factor_context %in% c("farmer")]<-"Farmer characteristics"         
-PCC_data$factor_context[PCC_data$factor_context %in% c("context")]<-"Context characteristics"         
 PCC_data$factor_metric_unit<-stringr::str_to_sentence(PCC_data$factor_metric_unit)
 PCC_data$intervention_recla<-stringr::str_to_sentence(PCC_data$intervention_recla)
 PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh age (years)"]<- "HH age (years)"
@@ -366,7 +365,7 @@ PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Livestock owned (tl
 length(sort(unique(PCC_data$id))) # Number of articles 87
 table(PCC_data$factor)
 sort(unique(PCC_data$factor_metric_unit))
-sort(unique(PCC_data$effect_size_type))
+sort(unique(PCC_data$factor_context))
 sort(unique(PCC_data$y_metric_recla))
 table(PCC_data$y_metric_recla)
 sort(unique(PCC_data$model_method))
