@@ -4,188 +4,318 @@ library(readr)
 library(plyr)
 library(dplyr)
 
-####### FARMER CHARACTERISTICS -------
-##### Socio-demographic ------
-#"hh age"
-#"hh gender"
-#"hh education"
-#"h size"
-
-## Household head Age (years)----
-table(PCC_hh_age$factor_metric_unit)
-PCC_hh_age<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_age.csv")%>%
-  filter(factor_metric_unit == "hh age (years)")
-
-str(PCC_hh_age)
-sort(unique(PCC_hh_age$factor_metric_unit))
-length(sort(unique(PCC_hh_age$id))) # Number of articles 60
-
-## Household head Gender (1= male, 0= female)----
-PCC_hh_gender<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_gender.csv")%>%
-  filter(factor_metric_unit == "hh gender (1= male, 0= female)")
-
-str(PCC_hh_gender)
-sort(unique(PCC_hh_gender$factor_metric_unit))
-length(sort(unique(PCC_hh_gender$id))) # Number of articles 52
-
-## Household head Education (years) ---- 
-PCC_hh_education<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_education.csv")%>%
-  filter(factor_metric_unit == "hh education (years)")
-
-str(PCC_hh_education)
-sort(unique(PCC_hh_education$factor_metric_unit))
-length(sort(unique(PCC_hh_education$id))) # Number of articles 33
-
-## Household size (number of people) ----
-PCC_h_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_h_size.csv")%>%
-  filter(factor_metric_unit == "h size (number of people)")
-
-str(PCC_h_size)
-sort(unique(PCC_h_size$factor_metric_unit))
-length(sort(unique(PCC_h_size$id))) # Number of articles 39
-
-##### Economic and financial capital ------
-#"access to credit"
-#"hh off-farm income" AND "hh engaged in off-farm activities"
-
-## Access to credit ----
+####### FACTORS -------
+## Access to credit (1= yes, 0= no) ----
 PCC_access_credit<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_access_credit.csv")%>%
-  filter(factor_metric_unit == "access to credit (1= yes, 0= no)")
+  filter(factor_metric_unit == "access to credit (1= yes, 0= no)")%>%
+  mutate(variance_value=as.character(variance_value))
+
 
 str(PCC_access_credit)
 sort(unique(PCC_access_credit$factor_metric_unit))
 length(sort(unique(PCC_access_credit$id))) # Number of articles 28
 
-## Household off-farm income ----
-PCC_off_farm_income<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_off_farm_income.csv")%>%
-  filter(factor_metric_unit == "off-farm income (1= yes, 0= no)")
+## Access to agricultural extension ----
+PCC_agricultural_extension<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_agricultural_extension.csv")%>%
+  filter(factor_metric_unit == "agricultural extension (1= yes, 0= no)")%>%
+  mutate(variance_value=as.character(variance_value))
 
-str(PCC_off_farm_income)
-sort(unique(PCC_off_farm_income$factor_metric_unit))
-length(sort(unique(PCC_off_farm_income$id))) # Number of articles 30
 
-##### Information ------
-#"hh farming experience"
-#"hh association member"
+str(PCC_agricultural_extension)
+sort(unique(PCC_agricultural_extension$factor_metric_unit))
+length(sort(unique(PCC_agricultural_extension$id))) # Number of articles 29
 
-## Household head farming experience (years) ----
-PCC_hh_farming_experience<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_farming_experience.csv")%>%
-  filter(factor_metric_unit == "hh farming experience (years)")
+## Agricultural training ----
+PCC_agricultural_training<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_agricultural_training.csv")%>%
+  filter(factor_metric_unit == "access to agricultural training (1= yes, 0= no)")%>%
+  mutate(variance_value=as.character(variance_value))
 
-str(PCC_hh_farming_experience)
-sort(unique(PCC_hh_farming_experience$factor_metric_unit))
-length(sort(unique(PCC_hh_farming_experience$id))) # Number of articles 19
+str(PCC_agricultural_training)
+sort(unique(PCC_agricultural_training$factor_metric_unit))
+length(sort(unique(PCC_agricultural_training$id))) # Number of articles 12
+table(PCC_agricultural_training$factor_metric_unit)
 
-## Household head association member ----
-PCC_hh_association_member<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_association_member.csv")%>%
-  filter(factor_metric_unit == "hh association member (1= yes, 0= no)")
+## Distance from farm to house (Km, minutes) ----
+PCC_distance_farm<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_farm.csv")%>%
+  filter(factor_metric_unit == "distance farm-house (km)"|
+           factor_metric_unit =="distance farm-house (minutes)")%>%
+  mutate(factor_sub_class= as.character(factor_sub_class))%>%
+  mutate(variance_value=as.character(variance_value))
 
-str(PCC_hh_association_member)
-sort(unique(PCC_hh_association_member$factor_metric_unit))
-length(sort(unique(PCC_hh_association_member$id))) # Number of articles 37
+str(PCC_distance_farm)
+sort(unique(PCC_distance_farm$factor_metric_unit))
+length(sort(unique(PCC_distance_farm$id))) # Number of articles 14
+table(PCC_distance_farm$factor_metric_unit)
 
-####### FARM CHARACTERISTICS -----
-##### Social capital ------
-#"farm labour force"
+## Distance to market AND Distance to input market (Km, minutes) ----
+PCC_distance_market<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_market.csv")%>%
+  filter(factor_metric_unit == "distance to market (km)" |
+           factor_metric_unit == "distance to market (minutes)")%>%
+  mutate(variance_value=as.character(variance_value))
 
-## Farm labour force----
+str(PCC_distance_market)
+sort(unique(PCC_distance_market$factor_metric_unit))
+length(sort(unique(PCC_distance_market$id))) # Number of articles 19
+table(PCC_distance_market$factor_metric_unit)
+
+## Distance to road (Km, minutes) ----
+PCC_distance_road<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_road.csv")%>%
+  filter(factor_metric_unit == "distance to road (km)"|
+           factor_metric_unit =="distance to road (minutes)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+
+str(PCC_distance_road)
+sort(unique(PCC_distance_road$factor_metric_unit))
+length(sort(unique(PCC_distance_road$id))) # Number of articles 10
+table(PCC_distance_road$factor_metric_unit)
+
+## Farm altitude (m.a.s.l.) ----
+PCC_farm_altitude<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_altitude.csv")%>%
+  filter(factor_metric_unit == "farm altitude (m.a.s.l.)")%>%
+  mutate(factor_sub_class= as.character(factor_sub_class))%>%
+  mutate(variance_value=as.character(variance_value))
+
+str(PCC_farm_altitude)
+sort(unique(PCC_farm_altitude$factor_metric_unit))
+length(sort(unique(PCC_farm_altitude$id))) # Number of articles 5
+
+## Farm labour force (number of people) ----
 PCC_farm_labour<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_labour.csv")%>%
-  filter(factor_metric_unit == "farm labour force (number of people)")
+  filter(factor_metric_unit == "farm labour force (number of people)")%>%
+  mutate(variance_value=as.character(variance_value))
 
 str(PCC_farm_labour)
 sort(unique(PCC_farm_labour$factor_metric_unit))
 length(sort(unique(PCC_farm_labour$id))) # Number of articles 18
 
-##### Physical capital ------
-#"secured land tenure"
-#"livestock ownership"
+## Farm size (ha)----
+PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_size.csv")%>%
+  filter(factor_metric_unit == "farm size (ha)")%>%
+  mutate(variance_value=as.character(variance_value))
 
-## Secure land tenure----
-PCC_land_tenure_security<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_land_tenure_security.csv")
-  filter(factor_metric_unit == "secured land tenure (1= secure, 0= otherwise)")
+str(PCC_farm_size)
+sort(unique(PCC_farm_size$factor_metric_unit))
+length(sort(unique(PCC_farm_size$id))) # Number of articles 53
+
+## Household asset ----
+PCC_h_asset<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_h_asset.csv")%>%
+  filter(factor_metric_unit == "h asset (USD)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+str(PCC_h_asset)
+sort(unique(PCC_h_asset$factor_metric_unit))
+length(sort(unique(PCC_h_asset$id))) # Number of articles 22
+
+## Household size (number of people) ----
+PCC_h_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_h_size.csv")%>%
+  filter(factor_metric_unit == "h size (number of people)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+str(PCC_h_size)
+sort(unique(PCC_h_size$factor_metric_unit))
+length(sort(unique(PCC_h_size$id))) # Number of articles 39
+
+## Household head Age (years)----
+PCC_hh_age<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_age.csv")%>%
+  filter(factor_metric_unit == "hh age (years)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+str(PCC_hh_age)
+sort(unique(PCC_hh_age$factor_metric_unit))
+length(sort(unique(PCC_hh_age$id))) # Number of articles 60
+
+## Household head association member (1= yes, 0= no) ----
+PCC_hh_association_member<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_association_member.csv")%>%
+  filter(factor_metric_unit == "hh association member (1= yes, 0= no)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+str(PCC_hh_association_member)
+sort(unique(PCC_hh_association_member$factor_metric_unit))
+length(sort(unique(PCC_hh_association_member$id))) # Number of articles 37
+
+## Household head Education (years) ---- 
+PCC_hh_education<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_education.csv")%>%
+  filter(factor_metric_unit == "hh education (years)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+
+str(PCC_hh_education)
+sort(unique(PCC_hh_education$factor_metric_unit))
+length(sort(unique(PCC_hh_education$id))) # Number of articles 33
+
+## Household head farming experience (years) ----
+PCC_hh_farming_experience<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_farming_experience.csv")%>%
+  filter(factor_metric_unit == "hh farming experience (years)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+
+str(PCC_hh_farming_experience)
+sort(unique(PCC_hh_farming_experience$factor_metric_unit))
+length(sort(unique(PCC_hh_farming_experience$id))) # Number of articles 19
+
+## Household head Gender (1= male, 0= female)----
+PCC_hh_gender<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_gender.csv")%>%
+  filter(factor_metric_unit == "hh gender (1= male, 0= female)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+
+str(PCC_hh_gender)
+sort(unique(PCC_hh_gender$factor_metric_unit))
+length(sort(unique(PCC_hh_gender$id))) # Number of articles 52
+
+## Household head is native (1= native, 0= otherwise) ---- 
+PCC_hh_native<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_hh_native.csv")%>%
+  filter(factor_metric_unit == "hh is native (1= native, 0= otherwise)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+str(PCC_hh_native)
+sort(unique(PCC_hh_native$factor_metric_unit))
+length(sort(unique(PCC_hh_native$id))) # Number of articles 9
+
+## Irrigation (1= secure, 0= otherwise) ----
+PCC_irrigation<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_irrigation.csv")%>%
+  filter(factor_metric_unit == "irrigation (1= yes, 0= no)")%>%
+  mutate(variance_value=as.character(variance_value))
+
+str(PCC_irrigation)
+sort(unique(PCC_irrigation$factor_metric_unit))
+length(sort(unique(PCC_irrigation$id))) # Number of articles 8
+table(PCC_irrigation$factor_metric_unit)
+
+
+## Land tenure security (1= secure, 0= otherwise) ----
+PCC_land_tenure_security<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_land_tenure_security.csv")%>%
+  filter(factor_metric_unit == "secured land tenure (1= secure, 0= otherwise)")%>%
+  mutate(variance_value=as.character(variance_value))
 
 str(PCC_land_tenure_security)
 sort(unique(PCC_land_tenure_security$factor_metric_unit))
 length(sort(unique(PCC_land_tenure_security$id))) # Number of articles 27
 
-## Livestock ownership ----
+
+## Livestock ownership (TLU; (Units of animal owned))----
 PCC_livestock_ownership<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_livestock_ownership.csv")%>%
-  filter(factor_metric_unit == "livestock ownership (TLU)")
+  filter(factor_metric_unit == "livestock ownership (TLU)"| 
+           factor_metric_unit == "livestock ownership (Units of animal owned)")%>%
+  mutate(variance_value=as.character(variance_value))
 
 str(PCC_livestock_ownership)
 sort(unique(PCC_livestock_ownership$factor_metric_unit))
-length(sort(unique(PCC_livestock_ownership$id))) # Number of articles 27
+length(sort(unique(PCC_livestock_ownership$id))) # Number of articles 19
+table(PCC_livestock_ownership$factor_metric_unit)
 
-##### Biophysical ------
-#"farm size"
+## Household off-farm income (1= yes, 0= no) ----
+PCC_off_farm_income<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_off_farm_income.csv")%>%
+  filter(factor_metric_unit == "hh off-farm income (1= yes, 0= no)")%>%
+  mutate(variance_value=as.character(variance_value))
 
-## Farm size (ha)----
-PCC_farm_size<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_farm_size.csv")%>%
-  filter(factor_metric_unit == "farm size (ha)")
+str(PCC_off_farm_income)
+sort(unique(PCC_off_farm_income$factor_metric_unit))
+length(sort(unique(PCC_off_farm_income$id))) # Number of articles 30
+table(PCC_off_farm_income$factor_metric_unit)
 
-str(PCC_farm_size)
-sort(unique(PCC_farm_size$factor_metric_unit))
-length(sort(unique(PCC_farm_size$id))) # Number of articles 47
+## Precipitation (mm) ----
+PCC_precipitation<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_precipitation.csv")%>%
+  filter(factor_metric_unit == "precipitation (mm)")%>%
+  mutate(variance_value=as.character(variance_value),
+         factor_sub_class= as.character(factor_sub_class))
+  
 
-####### CONTEXT CHARACTERISTICS -----
-##### Information ------
-#"agricultural extension"
+str(PCC_precipitation)
+sort(unique(PCC_precipitation$factor_metric_unit))
+length(sort(unique(PCC_precipitation$id))) # Number of articles 6
 
-## Access to agricultural extension ----
-PCC_agricultural_extension<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_agricultural_extension.csv")%>%
-  filter(factor_metric_unit == "agricultural extension (1= yes, 0= no)")
+## Soil erosion ----
+PCC_soil_erosion<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_soil_erosion.csv")%>%
+  filter(factor_metric_unit == "soil erosion (1 = major problem, 2 = minor problem, 3 = not a problem)")%>%
+  mutate(variance_value=as.character(variance_value),
+         factor_sub_class= as.character(factor_sub_class))
 
-str(PCC_agricultural_extension)
-sort(unique(PCC_agricultural_extension$factor_metric_unit))
-length(sort(unique(PCC_agricultural_extension$id))) # Number of articles 27
+str(PCC_soil_erosion)
+sort(unique(PCC_soil_erosion$factor_metric_unit))
+length(sort(unique(PCC_soil_erosion$id))) # Number of articles 3
+table(PCC_soil_erosion$factor_metric_unit)
 
-##### Physical capital ------
-#"distance to market" AND "distance to input market"
-#"distance to road"
+## Soil fertility ----
+PCC_soil_fertility<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_soil_fertility.csv")%>%
+  filter(factor_metric_unit == "soil fertility (1= high fertility, 0= otherwise)")%>%
+  mutate(variance_value=as.character(variance_value),
+         factor_sub_class= as.character(factor_sub_class))
+  
 
-## Distance to market AND Distance to input market (Km) ----
-PCC_distance_market<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_market.csv")%>%
-  mutate(variance_value = as.character(variance_value))%>%
-  filter(factor_metric_unit == "distance to market (km)")
+str(PCC_soil_fertility)
+sort(unique(PCC_soil_fertility$factor_metric_unit))
+length(sort(unique(PCC_soil_fertility$id))) # Number of articles 10
+table(PCC_soil_fertility$factor_metric_unit)
 
-str(PCC_distance_market)
-sort(unique(PCC_distance_market$factor_metric_unit))
-length(sort(unique(PCC_distance_market$id))) # Number of articles 47
+## Soil slope  ----
+PCC_soil_slope<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_soil_slope.csv")%>%
+  filter(factor_metric_unit == "soil slope (1= steep slope, 0= otherwise)")%>%
+  mutate(variance_value=as.character(variance_value),
+         factor_sub_class= as.character(factor_sub_class))
 
-## Distance to road (Km) ----
-PCC_distance_road<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_distance_road.csv")%>%
-  filter(factor_metric_unit == "distance to road (km)")
+str(PCC_soil_slope)
+sort(unique(PCC_soil_slope$factor_metric_unit))
+length(sort(unique(PCC_soil_slope$id))) # Number of articles 6
+table(PCC_soil_slope$factor_metric_unit)
 
-str(PCC_distance_road)
-sort(unique(PCC_distance_road$factor_metric_unit))
-length(sort(unique(PCC_distance_road$id))) # Number of articles 7
-
-#Combine all PCC data for effect size calculation
-#1- "hh age" (years)
-#2- "hh gender" (1=male)
-#3- "hh education" (years)
-#4- "hh farming experience (years)"
-#5- "h size" (number of people)
-#6- "farm size" (ha)
-#7- "distance to market" AND "distance to input market" (km)
+## Combine all PCC data for effect size calculation ----
+PCC_access_credit
+PCC_agricultural_extension
+PCC_agricultural_training
+PCC_distance_farm
+PCC_distance_market
+PCC_distance_road
+PCC_farm_altitude
+PCC_farm_labour
+PCC_farm_size
+PCC_h_asset
+PCC_h_size
+PCC_hh_age
+PCC_hh_association_member
+PCC_hh_education
+PCC_hh_farming_experience
+PCC_hh_gender
+PCC_hh_native
+PCC_irrigation
+PCC_land_tenure_security
+PCC_livestock_ownership
+PCC_off_farm_income
+PCC_precipitation
+PCC_soil_erosion
+PCC_soil_fertility
+PCC_soil_slope
 
 PCC_data<- bind_rows(PCC_access_credit,
                      PCC_agricultural_extension,
+                     PCC_agricultural_training,
+                     PCC_distance_farm,
                      PCC_distance_market,
                      PCC_distance_road,
+                     PCC_farm_altitude,
                      PCC_farm_labour,
                      PCC_farm_size,
+                     PCC_h_asset,
                      PCC_h_size,
                      PCC_hh_age, 
                      PCC_hh_association_member,
                      PCC_hh_education,
                      PCC_hh_farming_experience,
                      PCC_hh_gender,
+                     PCC_hh_native,
+                     PCC_irrigation,
                      PCC_land_tenure_security,
                      PCC_livestock_ownership,
-                     PCC_off_farm_income)
-table(PPC_ES$factor_metric_unit)
-sort(unique(PPC_ES$factor_metric_unit))
+                     PCC_off_farm_income,
+                     PCC_precipitation,
+                     PCC_soil_erosion,
+                     PCC_soil_fertility,
+                     PCC_soil_slope)
+
+table(PCC_data$factor_metric_unit)
+names(PCC_data)
+sort(unique(PCC_data$factor_sub_class))
 PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("hh age (years)",
                                                            "hh gender (1= male, 0= female)",
                                                            "hh education (years)",
