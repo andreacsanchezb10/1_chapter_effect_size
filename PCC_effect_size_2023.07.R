@@ -3,6 +3,8 @@ library(Rtools)
 library(readr)
 library(plyr)
 library(dplyr)
+library(stringr)
+
 
 ####### FACTORS -------
 ## Access to credit (1= yes, 0= no) ----
@@ -27,7 +29,7 @@ length(sort(unique(PCC_agricultural_extension$id))) # Number of articles 29
 
 ## Agricultural training ----
 PCC_agricultural_training<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_agricultural_training.csv")%>%
-  filter(factor_metric_unit == "access to agricultural training (1= yes, 0= no)")%>%
+  filter(factor_metric_unit == "agricultural training (1= yes, 0= no)")%>%
   mutate(variance_value=as.character(variance_value),
          intervention_recla_detail_3= as.character(intervention_recla_detail_3))
 
@@ -200,7 +202,7 @@ table(PCC_irrigation$factor_metric_unit)
 
 ## Land tenure security (1= secure, 0= otherwise) ----
 PCC_land_tenure_security<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_land_tenure_security.csv")%>%
-  filter(factor_metric_unit == "secured land tenure (1= secure, 0= otherwise)")%>%
+  filter(factor_metric_unit == "land tenure security (1= secure, 0= otherwise)")%>%
   mutate(variance_value=as.character(variance_value),
          intervention_recla_detail_3= as.character(intervention_recla_detail_3))
 
@@ -211,8 +213,8 @@ length(sort(unique(PCC_land_tenure_security$id))) # Number of articles 27
 
 ## Livestock ownership (TLU; (Units of animal owned))----
 PCC_livestock_ownership<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_livestock_ownership.csv")%>%
-  filter(factor_metric_unit == "livestock ownership (TLU)"| 
-           factor_metric_unit == "livestock ownership (Units of animal owned)")%>%
+  filter(factor_metric_unit == "livestock owned (TLU)"| 
+           factor_metric_unit == "livestock owned (Units of animal owned)")%>%
   mutate(variance_value=as.character(variance_value),
          intervention_recla_detail_3= as.character(intervention_recla_detail_3))
 
@@ -349,15 +351,32 @@ PCC_data$factor_context[PCC_data$factor_metric_unit %in% c("access to credit (1=
 PCC_data$factor_context[PCC_data$factor_context %in% c("farm")]<-"Farm characteristics"         
 PCC_data$factor_context[PCC_data$factor_context %in% c("farmer")]<-"Farmer characteristics"         
 PCC_data$factor_context[PCC_data$factor_context %in% c("context")]<-"Context characteristics"         
+PCC_data$factor_metric_unit<-stringr::str_to_sentence(PCC_data$factor_metric_unit)
+PCC_data$intervention_recla<-stringr::str_to_sentence(PCC_data$intervention_recla)
+PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh age (years)"]<- "HH age (years)"
+PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh association member (1= yes, 0= no)"]<- "HH association member (1= yes, 0= no)"
+PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh education (years)"]<- "HH education (years)"
+PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh gender (1= male, 0= female)"]<- "HH gender (1= male, 0= female)"
+PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh farming experience (years)"]<- "HH farming experience (years)"
+PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh off-farm income (1= yes, 0= no)"]<- "Off-farm income (1= yes, 0= no)"
+PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Hh is native (1= native, 0= otherwise)"]<- "HH is native (1= native, 0= otherwise)"
+PCC_data$factor_metric_unit[PCC_data$factor_metric_unit%in% "Livestock owned (tlu)"]<- "Livestock owned (TLU)"
 
 
-length(sort(unique(PCC_data$id))) # Number of articles 86
+length(sort(unique(PCC_data$id))) # Number of articles 87
 table(PCC_data$factor)
+sort(unique(PCC_data$factor_metric_unit))
 sort(unique(PCC_data$effect_size_type))
 sort(unique(PCC_data$y_metric_recla))
 table(PCC_data$y_metric_recla)
 sort(unique(PCC_data$model_method))
 table(PCC_data$model_analysis_raw, PCC_data$model_method)
+
+PCC_data<-PCC_data
+  
+sort(unique(PCC_data$intervention_recla))
+table(PCC_data$intervention_recla_detail_1)
+
 
 
 ### Filter articles for meta-analysis ----
@@ -514,6 +533,15 @@ table(PPC_ES$intervention_recla)
 
 PCC_ES<-escalc(measure="PCOR", ti= z_t_value_recal, ni=n_samples_num, mi=n_predictors_num, data=PPC_ES)
 
+length(sort(unique(PCC_ES$id))) # Number of articles 83
+
+system_count<-PCC_ES %>%
+  group_by(intervention_recla,intervention_recla_detail_1, intervention_recla_detail_2, intervention_recla_detail_3) %>%
+  summarise(n_articles = n_distinct(id))
+
+write.csv(system_count, "C:/Users/andreasanchez/OneDrive - CGIAR/Documents/1_Chapter_PhD/1_chapter_Data_cleaning/PCC/PCC_system_count.csv", row.names=FALSE)
+
+
 ### Meta-analysis function ----
 table(PPC_ES$factor_metric_unit)
 
@@ -551,7 +579,6 @@ articles_count <- PPC_ES %>%
   summarise(n_articles = n_distinct(id))
 
 #install.packages("string")
-library(stringr)
 
 results<- meta_regression_results%>%
   mutate(beta = as.numeric(beta))%>%
@@ -564,7 +591,6 @@ results<- meta_regression_results%>%
   select(factor_context, factor_metric_unit, beta, ci.lb, ci.ub,significance,n_articles,k)
   
 
-results$factor_metric_unit<-stringr::str_to_sentence(results$factor_metric_unit)
 #install.packages("tidyverse")
 library(tidyverse)
 
@@ -625,6 +651,7 @@ ES_system_fator <- PPC_ES %>%
   right_join(ES_factor)%>%
   mutate(percent_factor_system= (es_system_factor/es_factor)*100)
 
+
 ES_system_fator%>%
 ggplot(aes(x = factor(factor_metric_unit, levels = unique(factor_metric_unit)),
            y = percent_factor_system, fill = intervention_recla)) +
@@ -633,12 +660,8 @@ ggplot(aes(x = factor(factor_metric_unit, levels = unique(factor_metric_unit)),
   scale_fill_brewer(palette = "Paired", name= "Factors")
 
   
-  labs(x = "Name")
 
 
-ggplot(ES_system_fator, aes(y = factor_metric_unit)) +
-  geom_bar(aes(fill = intervention_recla), position = position_stack(reverse = TRUE)) +
-  theme(legend.position = "top")
 
 
 ### Figure: Number of articles by country
